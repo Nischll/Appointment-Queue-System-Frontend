@@ -4,9 +4,9 @@ import { publicRoutes } from "./publicRoutes";
 import { wrapWithProtection } from "@/helper/wrapWithProtection";
 
 export const useDynamicRoutes = () => {
-  // const { isAuthenticated } = useAuth();
-  const isAuthenticated = true;
-  // const protectedRoutes = wrapWithProtection(privateRoutes);
+  const { isAuthenticated } = useAuth();
+  // const isAuthenticated = true;
+  const protectedRoutes = wrapWithProtection(privateRoutes);
 
-  return isAuthenticated ? privateRoutes : publicRoutes;
+  return isAuthenticated ? protectedRoutes : publicRoutes;
 };

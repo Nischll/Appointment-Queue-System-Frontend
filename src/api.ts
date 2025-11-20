@@ -59,15 +59,9 @@ apiService.interceptors.response.use(
 
       try {
         // Inside response interceptor
-        const res = await axios.post(
-          `${BASE_URL}/api/auth/refresh`,
-          undefined,
-          {
-            headers: {
-              Authorization: `Bearer ${getRefreshToken()}`,
-            },
-          }
-        );
+        const res = await axios.post(`${BASE_URL}api/auth/refresh`, {
+          refreshToken: getRefreshToken(),
+        });
 
         const { accessToken, refreshToken } = res.data.data;
         setToken(accessToken);

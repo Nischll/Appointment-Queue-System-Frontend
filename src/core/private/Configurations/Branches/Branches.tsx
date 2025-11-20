@@ -46,7 +46,8 @@ const Branches = () => {
 
   const { mutate: addBranchApi, isPending: pendingAddBranch } = useApiMutation(
     "post",
-    API_ENDPOINTS.BRANCH.ADD_BRANCH
+    // API_ENDPOINTS.BRANCH.ADD_BRANCH
+    "api/clinics"
   );
   const { mutate: updateBranchApi, isPending: pendingUpdateBranch } =
     useApiMutation(
@@ -88,8 +89,8 @@ const Branches = () => {
     const requestBody = {
       name: data.name,
       address: data.address,
-      phoneNumber: data.phoneNumber,
-      email: data.email,
+      contact: data.phoneNumber,
+      // email: data.email,
     };
 
     if (selectedBranch) {
@@ -102,12 +103,12 @@ const Branches = () => {
       });
     } else {
       addBranchApi(requestBody, {
-        onSuccess: () => {
-          refetch();
-          setIsDialogOpen(false);
-          reset();
-          setSelectedBranch(null);
-        },
+        // onSuccess: () => {
+        //   refetch();
+        //   setIsDialogOpen(false);
+        //   reset();
+        //   setSelectedBranch(null);
+        // },
       });
     }
   };

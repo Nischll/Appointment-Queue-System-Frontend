@@ -1,10 +1,8 @@
 import { API_ENDPOINTS } from "../ApiEndpoints/apiEndpoints";
 
 export const QUERY_KEYS = {
-  GET_ALL_PRODUCT_DATA: [API_ENDPOINTS.PRODUCT.GET_ALL_PRODUCT],
   GET_ALL_BRANCH: [API_ENDPOINTS.BRANCH.GET_ALL_BRANCH],
   GET_BRANCH_DROPDOWN: [API_ENDPOINTS.BRANCH.GET_BRANCH_DROPDOWN],
-  GET_ALL_PATIENT: [API_ENDPOINTS.PATIENT.GET],
   GET_REPORTS_HEADER_DATA: (
     timeframe: string | undefined,
     branchId: number | null
@@ -25,18 +23,4 @@ export const QUERY_KEYS = {
     API_ENDPOINTS.DASHBOARD.GET_HEADER(branchId),
   ],
   GET_CONFIGURATION_DISCOUNT: [API_ENDPOINTS.DISCOUNT.GET_ALL_DISCOUNT],
-  GET_ALL_SALES_HISTORY: (branchId: number | null) => [
-    API_ENDPOINTS.SALES_HISTORY.GET_SALES_HISTORY(branchId),
-  ],
-  GET_PRODUCT_QUANTITY: (
-    branchId: number | null,
-    productId: string | undefined
-  ) => [API_ENDPOINTS.PRODUCT.GET_PRODUCT_QUANTITY(branchId, productId)],
-  GET_PRODUCT_BATCH_NUMBER: (
-    branchId: number | undefined,
-    productId: number | null
-  ) => [API_ENDPOINTS.PRODUCT.GET_BATCH_NUMBER(branchId, productId)],
-  GET_PRODUCT_BATCH_WISE: (branchId: number | null) => [
-    API_ENDPOINTS.BILLING.GET_BATCH_WISE_PRODUCT(branchId),
-  ],
 };
