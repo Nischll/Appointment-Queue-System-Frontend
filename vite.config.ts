@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import fs from "fs";
+import tailwindcss from "@tailwindcss/vite";
 
 interface EnvConfig {
   VITE_BASE_URL?: string;
@@ -28,6 +29,7 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     react(),
+    tailwindcss(),
     // mode === "development" && componentTagger(),
     // VitePWA({
     //   registerType: "autoUpdate",
