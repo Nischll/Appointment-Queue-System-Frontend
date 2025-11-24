@@ -1,17 +1,18 @@
-import { apiService } from '@/api';
-import { useQuery, UseQueryOptions } from '@tanstack/react-query';
-import { AxiosRequestConfig } from 'axios';
+import { apiService } from "@/api";
+import { useQuery, type UseQueryOptions } from "@tanstack/react-query";
+import { type AxiosRequestConfig } from "axios";
 
 interface UseGetApiConfig<TData = unknown> {
   queryParams?: Record<string, any>;
   enabled?: boolean;
   axiosConfig?: AxiosRequestConfig;
+  responseType?: AxiosRequestConfig["responseType"];
   staleTime?: number;
   refetchOnMount?: boolean;
   refetchOnWindowFocus?: boolean;
   refetchOnReconnect?: boolean;
-  select?: UseQueryOptions<TData, Error>['select'];
-  retry?: UseQueryOptions<TData, Error>['retry'];
+  select?: UseQueryOptions<TData, Error>["select"];
+  retry?: UseQueryOptions<TData, Error>["retry"];
 }
 
 export const useApiGet = <T>(
@@ -22,6 +23,7 @@ export const useApiGet = <T>(
     queryParams,
     enabled = true,
     axiosConfig,
+    responseType,
     staleTime = Infinity,
     refetchOnMount = false,
     refetchOnWindowFocus = false,
@@ -47,27 +49,18 @@ export const useApiGet = <T>(
     select,
     retry,
     queryFn: async () => {
-      try {
-        const response = await apiService.get<T>(
-          Array.isArray(endpoint) ? endpoint[0] : endpoint,
-          {
-            params: queryParams,
-            ...axiosConfig,
-          }
-        );
-        return response.data;
-      } catch (error: any) {
-        // const message =
-        //   error?.response?.data?.message || 'Something went wrong';
-        // toast.error(message, {
-        //   autoClose: 2000,
-        //   position: 'bottom-center',
-        //   className: 'black-background',
-        //   progressClassName: 'fancy-progress-bar',
-        // });
-        // toast.clearWaitingQueue();
-        throw error;
-      }
+      const finalAxiosConfig: AxiosRequestConfig = {
+        ...(axiosConfig || {}),
+        ...(responseType ? { responseType } : {}),
+        params: queryParams,
+      };
+
+      const response = await apiService.get<T>(
+        Array.isArray(endpoint) ? endpoint[0] : endpoint,
+        finalAxiosConfig
+      );
+
+      return response.data;
     },
   };
 

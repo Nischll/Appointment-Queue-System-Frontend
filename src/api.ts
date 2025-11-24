@@ -25,7 +25,7 @@ apiService.interceptors.request.use(
     startGlobalLoading();
     const token = getToken();
 
-    if (token) {
+    if (token && !config.url?.includes("/auth/refresh")) {
       config.headers["Authorization"] = `Bearer ${token}`;
     }
 
@@ -59,7 +59,7 @@ apiService.interceptors.response.use(
 
       try {
         // Inside response interceptor
-        const res = await axios.post(`${BASE_URL}api/auth/refresh`, {
+        const res = await apiService.post(`/api/auth/refresh`, {
           refreshToken: getRefreshToken(),
         });
 
