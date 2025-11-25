@@ -7,11 +7,21 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, loading } = useAuth();
   const location = useLocation();
 
+  if (loading) {
+    return null;
+  }
+
+  // If not authenticated at all -> go to login
   if (!isAuthenticated) {
     return <Navigate to="/" replace />;
+  }
+
+  // If authenticated but user data wasn't loaded for some reason, show loader
+  if (isAuthenticated && !user) {
+    return null;
   }
 
   function extractPaths(modules: any[]): string[] {

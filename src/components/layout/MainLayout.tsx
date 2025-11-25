@@ -24,7 +24,7 @@ const navigation = [
   { name: "Configurations", href: "configurations", icon: Bolt },
 ];
 const MainLayout = () => {
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const navigate = useNavigate();
@@ -83,7 +83,7 @@ const MainLayout = () => {
 
           {/* Nav */}
           <nav className="flex-1 overflow-y-auto px-4 py-6">
-            <SidebarNav items={navigation} />
+            <SidebarNav modules={user?.moduleList || []} />
           </nav>
 
           {/* Footer */}

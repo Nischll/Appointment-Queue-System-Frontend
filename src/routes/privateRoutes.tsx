@@ -3,6 +3,7 @@ import { ReportsProvider } from "@/components/ContextApi/ReportsProvider";
 import ErrorPage from "@/helper/errorPage";
 import { lazy } from "react";
 import { Navigate, RouteObject } from "react-router-dom";
+import { DynamicRedirect } from "./dynamicRedirect";
 
 const PrivateLayout = lazy(() => import("../components/layout/MainLayout"));
 const Dashboard = lazy(() => import("../core/private/Dashboard/Dashboard"));
@@ -23,6 +24,10 @@ export const privateRoutes: RouteObject[] = [
     children: [
       {
         index: true,
+        element: <DynamicRedirect />,
+      },
+      {
+        path: "home",
         element: (
           <DashboardProvider>
             <Dashboard />
@@ -38,7 +43,7 @@ export const privateRoutes: RouteObject[] = [
         ),
       },
       {
-        path: "configurations",
+        path: "configuarations",
         element: <Configurations />,
       },
     ],
