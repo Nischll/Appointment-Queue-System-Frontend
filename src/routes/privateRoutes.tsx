@@ -5,12 +5,15 @@ import { lazy } from "react";
 import { Navigate, RouteObject } from "react-router-dom";
 import { DynamicRedirect } from "./dynamicRedirect";
 
+
+
 const PrivateLayout = lazy(() => import("../components/layout/MainLayout"));
 const Dashboard = lazy(() => import("../core/private/Dashboard/Dashboard"));
 const Reports = lazy(() => import("../core/private/Reports/Reports"));
-const Configurations = lazy(
-  () => import("../core/private/Configurations/Confgurations")
-);
+const UserTable = lazy(() => import("../core/private/UserManagement/StaffManagement/UserTable"));
+// const Configurations = lazy(
+//   () => import("../core/private/Configurations/Confgurations")
+// );
 
 export const privateRoutes: RouteObject[] = [
   {
@@ -43,9 +46,14 @@ export const privateRoutes: RouteObject[] = [
         ),
       },
       {
-        path: "configuarations",
-        element: <Configurations />,
+        path: "/staff-management",
+        element: <UserTable />,
       },
+
+      // {
+      //   path: "configuarations",
+      //   element: <Configurations />,
+      // },
     ],
   },
   {

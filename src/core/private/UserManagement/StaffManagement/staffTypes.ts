@@ -17,22 +17,32 @@ export interface GetUserResponse {
   data: User[];
 }
 
+// export interface User {
+//   id: number;
+//   firstName: string;
+//   middleName: string;
+//   lastName: string;
+//   username: string;
+//   email: string;
+//   gender: string;
+//   password: string;
+//   roleList: [];
+//   name?: string;
+//   code?: string;
+//   description?: string;
+//   allStaff?: boolean;
+//   allBranch?: boolean;
+//   branch?: number;
+//   sendSms?: boolean;
+//   sendEmail?: boolean;
+// }
+
 export interface User {
   id: number;
-  firstName: string;
-  middleName: string;
-  lastName: string;
-  username: string;
+  fullname: string;
   email: string;
-  gender: string;
-  password: string;
-  roleList: [];
-  name?: string;
-  code?: string;
-  description?: string;
-  allStaff?: boolean;
-  allBranch?: boolean;
-  branch?: number;
-  sendSms?: boolean;
-  sendEmail?: boolean;
+  role_id: number;
+  role_name: string;
+    password?: string;
+  isactive: boolean;
 }

@@ -46,4 +46,9 @@ export const API_ENDPOINTS = {
     DELETE_DISCOUNT: "api/discount/delete",
     UPDATE_DISCOUNT: (id: number | undefined) => `api/discount/update/${id}`,
   },
+  STAFF:{
+    GET_STAFF_BY_TYPE:"/api/users/staffByType",
+    ADD_STAFF:"/api/users/addUsers",
+    UPDATE_STAFF:(id:string|number|undefined)=>`/api/users/${id}`
+  }
 };
