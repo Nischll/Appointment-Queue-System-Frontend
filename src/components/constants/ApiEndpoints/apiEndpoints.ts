@@ -33,6 +33,7 @@ export const API_ENDPOINTS = {
       branchId: number | null
     ) => `api/report/generate-pdf/${timeframe}/${branchId}`,
   },
+ 
   BRANCH: {
     ADD_BRANCH: "api/branch/save",
     GET_ALL_BRANCH: "api/branch/get-all",
@@ -50,5 +51,34 @@ export const API_ENDPOINTS = {
     GET_STAFF_BY_TYPE:"/api/users/staffByType",
     ADD_STAFF:"/api/users/addUsers",
     UPDATE_STAFF:(id:string|number|undefined)=>`/api/users/${id}`
-  }
+  },
+    ROLE:{
+        GET_Role:"/api/role/",
+        ADD_ROLE:"/api/role/",
+        UPDATE_ROLE:(id:string|number|undefined)=>`/api/role/${id}`,
+        GET_PERMISSIONS:(id:string|number|undefined)=>`api/role/permissions/${id}`,
+        UPDATE_PERMISSIONS:(id:string|number|undefined)=>`/api/permissions/${id}`,
+    },
+    CLINIC :{
+      GET_CLINIC:"api/clinics/",
+        ADD_CLINIC:"api/clinics/",
+        DELETE_CLINIC:(id:string|number|undefined)=>`api/clinics/delete${id}`,
+        GET_CLINIC_BY_ID:(id:string|number|undefined)=>`api/clinics/${id}`,
+        UPDATE_CLINIC:  (id:string|number|undefined)=>`api/clinics/${id}`,
+    },
+    DOCTOR :{
+        GET_DOCTOR:"api/doctor/",
+        ADD_DOCTOR:"api/doctor/",
+        DELETE_DOCTOR:(id:string|number|undefined)=>`api/doctor/delete${id}`,
+        GET_DOCTOR_BY_ID:(id:string|number|undefined)=>`api/doctor/${id}`,
+        UPDATE_DOCTOR:  (doctorId:string|number|undefined,departmentId:string|number|undefined)=>`api/doctor/${doctorId}/${departmentId}`,
+    },
+    DEPARTMENT :{
+        GET_DEPARTMENT:"api/departments/",
+        ADD_DEPARTMENT:"api/departments/",
+        DELETE_DEPARTMENT:(id:string|number|undefined)=>`api/departments/delete${id}`,
+        GET_DEPARTMENT_BY_ID:(id:string|number|undefined)=>`api/departments/${id}`,
+        UPDATE_DEPARTMENT:  (departmentId:string|number|undefined)=>`api/departments/${departmentId}`,
+    }
+
 };

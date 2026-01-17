@@ -115,13 +115,23 @@
 //   TableCaption,
 // }
 import React, { useEffect, useMemo, useState } from "react";
+import { FaShieldAlt } from "react-icons/fa";
+import {
+  FiCheckCircle,
+  FiChevronDown,
+  FiChevronUp,
+  FiEdit,
+  FiEye,
+  FiNavigation2,
+  FiTrash2,
+} from "react-icons/fi";
+import { ImCross } from "react-icons/im";
 
 import ConfirmModal from "./ConfirmModal";
 
 import { COLORS } from "./Theme";
 import { Input } from "./input";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { CheckCircle, ChevronDown, ChevronUp, Edit2, Eye, Navigation2, ShieldAlert, Trash2, X } from "lucide-react";
 
 type StringKeyOf<T> = Extract<keyof T, string>;
 
@@ -352,9 +362,9 @@ function Table<T extends { id: number | string }>({
   const renderSortIcon = (key: StringKeyOf<T>) => {
     if (!sortable || sortConfig.key !== key) return null;
     return sortConfig.direction === "asc" ? (
-      <ChevronUp className="inline ml-1 w-4 h-4" />
+      <FiChevronUp className="inline ml-1 w-4 h-4" />
     ) : (
-      <ChevronDown className="inline ml-1 w-4 h-4" />
+      <FiChevronDown className="inline ml-1 w-4 h-4" />
     );
   };
 
@@ -401,7 +411,7 @@ function Table<T extends { id: number | string }>({
             className={`text-green-600 rounded hover:bg-green-100 transition ${btnClass}`}
             title="Approve"
           >
-            <CheckCircle />
+            <FiCheckCircle />
           </button>
         )}
         {onEdit && (
@@ -410,7 +420,7 @@ function Table<T extends { id: number | string }>({
             className={`text-blue-600 rounded hover:bg-blue-100 transition ${btnClass}`}
             title="Edit"
           >
-            <Edit2 />
+            <FiEdit />
           </button>
         )}
         {onDelete && (
@@ -419,7 +429,7 @@ function Table<T extends { id: number | string }>({
             className={`text-red-600 rounded hover:bg-red-100 transition ${btnClass}`}
             title="Delete"
           >
-            <Trash2 />
+            <FiTrash2 />
           </button>
         )}
         {onNavigate && (
@@ -428,7 +438,7 @@ function Table<T extends { id: number | string }>({
             className={`text-purple-600 rounded hover:bg-purple-100 transition ${btnClass}`}
             title="Navigate"
           >
-            <Navigation2 />
+            <FiNavigation2 />
           </button>
         )}
         {onView && (
@@ -437,7 +447,7 @@ function Table<T extends { id: number | string }>({
             className={`text-indigo-600 rounded hover:bg-indigo-100 transition ${btnClass}`}
             title="View"
           >
-            <Eye />
+            <FiEye />
           </button>
         )}
         {onReject && (
@@ -446,7 +456,7 @@ function Table<T extends { id: number | string }>({
             className={`text-red-600 rounded hover:bg-indigo-100 transition ${btnClass}`}
             title="Reject"
           >
-            <X />
+            <ImCross />
           </button>
         )}
         {onPermission && (
@@ -455,7 +465,7 @@ function Table<T extends { id: number | string }>({
             className={`text-green-600 rounded hover:bg-green-100 transition ${btnClass}`}
             title="Permission"
           >
-            <ShieldAlert />
+            <FaShieldAlt />
           </button>
         )}
       </div>
