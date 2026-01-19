@@ -1,6 +1,6 @@
 import React, { forwardRef, useState } from "react";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 import { cn } from "../../lib/utils";
-import { Eye, EyeOff } from "lucide-react";
 
 type OptionType = {
   label: string;
@@ -153,7 +153,7 @@ const Input = forwardRef<HTMLInputElement | HTMLSelectElement, InputProps>(
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 focus:outline-none"
                   tabIndex={-1}
                 >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
                 </button>
               )}
             </>
