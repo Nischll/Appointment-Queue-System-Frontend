@@ -1,21 +1,31 @@
 import UnProtectedRoute from "@/helper/UnProtectedRoute";
-import { lazy } from "react";
+import { lazy, Suspense } from "react";
 import { Navigate, RouteObject } from "react-router-dom";
 
 const Login = lazy(() => import("../core/public/Login/Login"));
+const Signup = lazy(() => import("../core/public/Signup"));
+
+const Loader = () => <div>Loading...</div>;
 
 export const publicRoutes: RouteObject[] = [
   {
     path: "/",
     element: (
-      <UnProtectedRoute>
-        <Login />
-      </UnProtectedRoute>
+      <Suspense fallback={<Loader />}>
+        <UnProtectedRoute>
+          <Login />
+        </UnProtectedRoute>
+      </Suspense>
     ),
-    errorElement: (
-      <>
-        <div>Error</div>
-      </>
+  },
+  {
+    path: "/signup",
+    element: (
+      <Suspense fallback={<Loader />}>
+        <UnProtectedRoute>
+          <Signup />
+        </UnProtectedRoute>
+      </Suspense>
     ),
   },
   {

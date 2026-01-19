@@ -3,7 +3,7 @@ export const API_ENDPOINTS = {
   AUTH: {
     LOGIN: "api/auth/login",
     REFRESH: "api/auth/refresh",
-    // SIGNUP: "api/auth/signup",
+    SIGNUP: "api/auth/signup",
     // FORGOT_PASSWORD: "api/auth/forgot-password",
     // POST_OTP: "api/auth/verify-otp-forget-password",
     // RESEND_OTP: "api/auth/resend-otp",
