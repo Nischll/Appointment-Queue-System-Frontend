@@ -3,7 +3,7 @@ import { API_ENDPOINTS } from "@/components/constants/ApiEndpoints/apiEndpoints"
 import { useAuth } from "@/components/ContextApi/AuthContext";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import z from "zod";
 import logo from "../../../assets/loginImage.png";
 import { Input } from "@/components/ui/input";
@@ -136,6 +136,9 @@ const Login = () => {
               </Button>
             </form>
           </Form>
+            <p className="mt-6 text-sm text-slate-600">
+              Didn't have an account? <Link to="/signup" className="font-bold text-blue-600 hover:unde">Sign Up as Patient</Link>
+            </p>
         </div>
       </div>
     </div>
