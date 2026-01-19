@@ -118,7 +118,7 @@ const Login = () => {
                     <FormControl>
                       <Input
                         type="password"
-                        placeholder="Enter passwordss"
+                        placeholder="Enter password"
                         {...field}
                       />
                     </FormControl>
