@@ -21,13 +21,10 @@ interface UseApiMutationOptions {
  * - AxiosError for errors
  * - TData is the request body type
  */
-export function useApiMutation<
-  TData = any,
-  TJsonData = any
->(
+export function useApiMutation<TData = any, TJsonData = any>(
   method: "post" | "put" | "delete",
   endpoint: string,
-  options?: UseApiMutationOptions
+  options?: UseApiMutationOptions,
 ): UseMutationResult<AxiosResponse<any>, AxiosError, TData, unknown> {
   const { params, responseType = "json" } = options ?? {};
 
@@ -61,6 +58,7 @@ export function useApiMutation<
       if (responseType === "json") {
         const res = response.data as SuccessResponse<TJsonData> | undefined;
         toast({
+          variant: "success",
           title: "Success",
           description: res?.message ?? "Operation successful",
         });
@@ -68,7 +66,10 @@ export function useApiMutation<
       // caller handles binary responses
     },
     onError: (error) => {
-      const msg = (error?.response?.data as any)?.message ?? error.message ?? "Something went wrong";
+      const msg =
+        (error?.response?.data as any)?.message ??
+        error.message ??
+        "Something went wrong";
       toast({
         variant: "destructive",
         title: "Error",

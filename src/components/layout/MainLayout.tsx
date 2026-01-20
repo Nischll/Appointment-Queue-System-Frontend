@@ -18,11 +18,6 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { LoadingData } from "@/helper/loadingData";
 import { SidebarNav } from "./SidebarNav";
 
-const navigation = [
-  { name: "Dashboard", href: "/", icon: LayoutDashboard },
-  { name: "Reports", href: "reports", icon: BarChart3 },
-  { name: "Configurations", href: "configurations", icon: Bolt },
-];
 const MainLayout = () => {
   const { user, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -31,7 +26,7 @@ const MainLayout = () => {
 
   const { mutate: postLogout, isPending } = useApiMutation(
     "post",
-    API_ENDPOINTS.AUTH.LOGOUT
+    API_ENDPOINTS.AUTH.LOGOUT,
   );
 
   const handleLogout = () => {
@@ -58,8 +53,8 @@ const MainLayout = () => {
       {/* Sidebar */}
       <div
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-64 transform bg-card border-r border-border transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:flex lg:flex-col",
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          "fixed inset-y-0 left-0 z-40 w-72 transform bg-card border-r border-border transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:flex lg:flex-col",
+          sidebarOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
         <div className="flex flex-col h-full">
@@ -74,15 +69,15 @@ const MainLayout = () => {
             <Button
               variant="ghost"
               size="sm"
-              className="lg:hidden"
+              className="lg:hidden h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
               onClick={() => setSidebarOpen(false)}
             >
-              <X className="h-5 w-5" />
+              <X className="h-4 w-4" />
             </Button>
           </div>
 
           {/* Nav */}
-          <nav className="flex-1 overflow-y-auto px-4 py-6">
+          <nav className="flex-1 overflow-y-auto px-4 py-3 column-scrollbar">
             <SidebarNav modules={user?.moduleList || []} />
           </nav>
 
@@ -99,12 +94,12 @@ const MainLayout = () => {
       {/* Main content */}
       <div className="flex flex-col flex-1 h-full">
         {/* Top bar */}
-        <div className="sticky top-0 z-40 h-16 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
+        <div className="sticky w-inherit top-0 z-20 h-16 border-b-2 border-border/50 bg-background/95 backdrop-blur-sm shadow-sm">
           <div className="flex h-16 items-center px-4 sm:px-6 lg:px-8">
             <Button
               variant="ghost"
               size="sm"
-              className="lg:hidden"
+              className="lg:hidden h-9 w-9 p-0 hover:bg-muted"
               onClick={() => setSidebarOpen(true)}
             >
               <Menu className="h-5 w-5" />
@@ -129,7 +124,7 @@ const MainLayout = () => {
         </div>
 
         {/* Scrollable Page Content */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 w-full overflow-y-auto overflow-x-hidden column-scrollbar">
           <Suspense fallback={<LoadingData />}>
             <Outlet />
           </Suspense>
