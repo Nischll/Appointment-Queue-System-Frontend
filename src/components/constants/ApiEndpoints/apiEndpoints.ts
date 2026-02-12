@@ -3,7 +3,7 @@ export const API_ENDPOINTS = {
   AUTH: {
     LOGIN: "api/auth/login",
     REFRESH: "api/auth/refresh",
-    SIGNUP: "api/auth/signup",
+    // SIGNUP: "api/auth/signup",
     // FORGOT_PASSWORD: "api/auth/forgot-password",
     // POST_OTP: "api/auth/verify-otp-forget-password",
     // RESEND_OTP: "api/auth/resend-otp",
@@ -86,6 +86,25 @@ export const API_ENDPOINTS = {
         DELETE_PATIENT:(id:string|number|undefined)=>`api/patient/${id}`,
         GET_PATIENT_BY_ID:(id:string|number|undefined)=>`api/patient/${id}`,
         UPDATE_PATIENT:  (id:string|number|undefined)=>`api/patient/${id}`,
-    }
+    },
+    DOCTOR_SHIFT :{
+        GET_DOCTOR_SHIFT:(doctorId:string|number|undefined,departmentId:string|number|undefined)=>`/api/doctor-shifts/${doctorId}/${departmentId}`,
+        ADD_DOCTOR_SHIFT:(doctorId:string|number|undefined,departmentId:string|number|undefined)=>`/api/doctor-shifts/${doctorId}/${departmentId}`,
 
+    },
+APPOINTMENT:{
+        GET_LIVE_APPOINTMENT:`/api/appointments/live`,
+        ADD_APPOINTMENT:`/api/appointments/book`,
+    CHECK_IN:(id:number|undefined|string)=>`/api/appointments/check-in/${id}`,
+    START:(id:number|undefined|string)=>`/api/appointments/start/${id}`,
+    COMPLETE:(id:number|undefined|string)=>`/api/appointments/complete/${id}`,
+    CANCEL:(id:number|undefined|string)=>`/api/appointments/cancel/${id}`,
+    NO_SHOWN:(id:number|undefined|string)=>`/api/appointments/no-show/${id}`,
+    UPDATE:(id:number|undefined|string)=>`/api/appointments/update/${id}`,
+    GET_HISTORY:`api/appointments/history`,
+    FOLLOW_UP:(id:number|undefined|string)=>`/api/appointments/follow-up/${id}`,
+    RESCHEDULE:(id:number|undefined|string)=>`/api/appointments/reschedule/${id}`,
+
+
+    }
 };
