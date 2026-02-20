@@ -19,6 +19,8 @@ const PermissionsTable = lazy(() => import("../core/private/UserManagement/RoleM
 const Appointment=lazy(()=>import("../core/private/AppointmentMangement/AppointmentTabs.tsx"))
 
 const BookAppointment=lazy(()=>import("../core/private/AppointmentMangement/AddAppointment.tsx"))
+const MyAppointments = lazy(() => import("../core/private/Patient/MyAppointments/MyAppointments"));
+const PatientProfile = lazy(() => import("../core/private/Patient/Profile/PatientProfile"));
 // const Configurations = lazy(
 //   () => import("../core/private/Configurations/Confgurations")
 // );
@@ -82,6 +84,15 @@ export const privateRoutes: RouteObject[] = [
         {
             path:"appointment-management/book-appointment",
             element:<BookAppointment/>
+        },
+        // Patient Routes
+        {
+            path: "my-appointments",
+            element: <MyAppointments />
+        },
+        {
+            path: "profile",
+            element: <PatientProfile />
         }
 
 

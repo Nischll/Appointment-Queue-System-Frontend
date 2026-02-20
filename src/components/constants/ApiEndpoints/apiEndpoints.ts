@@ -86,6 +86,13 @@ export const API_ENDPOINTS = {
         DELETE_PATIENT:(id:string|number|undefined)=>`api/patient/${id}`,
         GET_PATIENT_BY_ID:(id:string|number|undefined)=>`api/patient/${id}`,
         UPDATE_PATIENT:  (id:string|number|undefined)=>`api/patient/${id}`,
+        // Patient Appointment Endpoints
+        GET_CLINICS: "patient/clinics",
+        GET_DOCTORS: (clinicId: number, date: string) => `patient/doctors?clinicId=${clinicId}&date=${date}`,
+        BOOK_APPOINTMENT: "patient/appointment/book",
+        GET_LIVE_APPOINTMENT: "patient/appointment/live",
+        GET_UPCOMING_APPOINTMENTS: (status: "REQUESTED" | "BOOKED") => `patient/appointment/upcoming?status=${status}`,
+        GET_APPOINTMENT_HISTORY: "patient/appointment/history",
     },
     DOCTOR_SHIFT :{
         GET_DOCTOR_SHIFT:(doctorId:string|number|undefined,departmentId:string|number|undefined)=>`/api/doctor-shifts/${doctorId}/${departmentId}`,

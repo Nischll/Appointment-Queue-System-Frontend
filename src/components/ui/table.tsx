@@ -379,8 +379,14 @@ function Table<T extends { id: number | string }>({
     }
   };
 
-  const renderPagination = () =>
-    totalPages > 1 && (
+  const renderPagination = () => {
+    // For backend pagination, always show pagination info even if only 1 page
+    // For frontend pagination, only show if more than 1 page
+    const shouldShow = isBackend ? totalPages >= 1 : totalPages > 1;
+    
+    if (!shouldShow) return null;
+    
+    return (
       <div className="flex flex-col items-center gap-3 py-4">
         {/* Page info */}
         <div className="text-xs text-gray-500">
@@ -495,6 +501,7 @@ function Table<T extends { id: number | string }>({
         </div>
       </div>
     );
+  };
 
   const getSN = (index: number) =>
     isBackend
@@ -703,7 +710,7 @@ function Table<T extends { id: number | string }>({
 
   return (
     <div
-      className={`overflow-x-auto border border-gray-300 rounded-lg shadow-sm ${className}`}
+      className={`overflow-x-auto border border-gray-300 rounded-lg shadow-sm w-full ${className}`}
     >
       <div className="flex justify-between items-center p-2">
         {searchable ? (
@@ -752,7 +759,7 @@ function Table<T extends { id: number | string }>({
         {/*    </select>*/}
         {/*)}*/}
       </div>
-      <table className="min-w-full border rounded-2xl table-auto divide-y divide-gray-200">
+      <table className="w-full border rounded-2xl table-auto divide-y divide-gray-200" style={{ minWidth: 'max-content' }}>
         <thead className={`bg-white text-black border-b-4 shadow-2xl`}>
           <tr>
             <th className="px-4 py-3 text-left text-xs font-semibold">

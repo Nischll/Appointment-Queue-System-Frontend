@@ -14,12 +14,17 @@ export interface ModuleItem {
   moduleList: ModuleItem[];
 }
 export interface UserData {
+  userId?: number;
   fullName: string;
-  firstName: string;
-  middleName: string;
-  lastName: string;
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
+  username?: string;
   email: string;
-  role: string;
+  phone?: string;
+  gender?: string;
+  role?: string | null;
+  roleCode?: string | null;
   isActive: boolean;
   moduleList: ModuleItem[];
 }

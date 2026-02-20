@@ -4,14 +4,36 @@ import {UserData} from "../ContextApi/AuthContext";
 import {useApiGet} from "./ApiGet";
 import {useApiMutation} from "./ApiMutation";
 import {PermissionApiItem, RoleResponse} from "@/core/private/UserManagement/RoleManagement/roleTypes.ts";
-import {Clinic} from "@/core/private/ClinicMnagement/clinicType.ts";
 import {Patient} from "@/core/private/PatientMangement/type.ts";
-import {Doctor} from "@/core/private/ClinicMnagement/DoctorManagement/doctorTypes.tsx";
+import { Clinic, Doctor } from "@/core/private/Patient/MyAppointments/appointmentTypes";
 
 export type ApiListResponse<T> = {
     statusCode: number;
     message: string;
     data: T[];
+};
+
+export type ApiPaginatedResponse<T> = {
+    statusCode: number;
+    message: string;
+    data: {
+        data: T[];
+        pagination?: {
+            page: number;
+            limit: number;
+            total: number;
+            total_pages: number;
+        };
+        total?: number; // Fallback for different API structures
+        page?: number;
+        limit?: number;
+    };
+};
+
+export type ApiSingleResponse<T> = {
+    statusCode: number;
+    message: string;
+    data: T;
 };
 
 export const useGetInit = () => {
@@ -182,3 +204,54 @@ export const useFollowUpAppointment = (id: string | number | undefined) =>
     useApiMutation("post", API_ENDPOINTS.APPOINTMENT.FOLLOW_UP(id));
 export const useRescheduleAppointment = (id: string | number | undefined) =>
     useApiMutation("put", API_ENDPOINTS.APPOINTMENT.RESCHEDULE(id));
+
+// Patient Appointment Hooks
+export const useGetPatientClinics = () =>
+    useApiGet<ApiListResponse<any>>(API_ENDPOINTS.PATIENT.GET_CLINICS);
+
+export const useGetPatientDoctors = (clinicId: number | null, date: string | null) =>
+    useApiGet<ApiListResponse<any>>(
+        clinicId && date 
+            ? API_ENDPOINTS.PATIENT.GET_DOCTORS(clinicId, date)
+            : "",
+        {
+            enabled: !!clinicId && !!date,
+            retry: 0,
+        }
+    );
+
+export const useBookPatientAppointment = () =>
+    useApiMutation("post", API_ENDPOINTS.PATIENT.BOOK_APPOINTMENT);
+
+export const useGetPatientLiveAppointment = () =>
+    useApiGet<ApiSingleResponse<any>>(API_ENDPOINTS.PATIENT.GET_LIVE_APPOINTMENT, {
+        retry: 0,
+        refetchOnMount: true,
+        refetchOnWindowFocus: true,
+    });
+
+export const useGetPatientUpcomingAppointments = (status: "REQUESTED" | "BOOKED") =>
+    useApiGet<ApiListResponse<any>>(API_ENDPOINTS.PATIENT.GET_UPCOMING_APPOINTMENTS(status), {
+        retry: 0,
+        refetchOnMount: true,
+    });
+
+export const useGetPatientAppointmentHistory = (
+    date_from?: string,
+    date_to?: string,
+    status?: string,
+    page?: number,
+    limit?: number,
+    enabled: boolean = true
+) =>
+    useApiGet<ApiPaginatedResponse<any>>(API_ENDPOINTS.PATIENT.GET_APPOINTMENT_HISTORY, {
+        queryParams: {
+            date_from,
+            date_to,
+            status,
+            page: page ?? 1,
+            limit: limit ?? 10,
+        },
+        enabled: enabled && !!date_from && !!date_to,
+        retry: 0,
+    });
