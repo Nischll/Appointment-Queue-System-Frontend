@@ -50,7 +50,7 @@ function SidebarItem({
           {/* Parent Item */}
           <div
             className={cn(
-              "flex cursor-pointer items-center justify-between rounded-lg px-3 py-2.5 text-sm transition-all duration-200 group text-muted-foreground hover:bg-accent hover:text-foreground",
+              "flex cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-sm transition-all duration-200 group text-muted-foreground hover:bg-accent hover:text-foreground",
               open && "bg-primary/5 text-foreground",
               fontClass,
             )}
@@ -65,7 +65,7 @@ function SidebarItem({
                     : "text-muted-foreground group-hover:text-primary",
                 )}
               />{" "}
-              {item.name}
+              <span className="text-sm">{item.name}</span>
             </div>
             <Icons.ChevronDown
               className={cn(
@@ -96,7 +96,7 @@ function SidebarItem({
           to={item.path?.startsWith("/") ? item.path : `/${item.path}`}
           className={({ isActive }) =>
             cn(
-              "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 group relative",
+              "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all duration-200 group relative",
               fontClass,
               isActive
                 ? "bg-primary text-primary-foreground shadow-sm"
@@ -117,7 +117,7 @@ function SidebarItem({
                     : "text-muted-foreground group-hover:text-primary",
                 )}
               />
-              <span className="truncate">{item.name}</span>
+              <span className="truncate text-sm">{item.name}</span>
             </>
           )}
         </NavLink>

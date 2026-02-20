@@ -13,7 +13,7 @@ const Dashboard = lazy(() => import("../core/private/Dashboard/Dashboard"));
 const Reports = lazy(() => import("../core/private/Reports/Reports"));
 const UserTable = lazy(() => import("../core/private/UserManagement/StaffManagement/UserTable"));
 const RoleManagement = lazy(() => import("../core/private/UserManagement/RoleManagement/RoleManagement"));
-const ClinicManagement = lazy(() => import("@/core/private/ClinicMnagement/ClinicTable.tsx"));
+const ClinicManagement = lazy(() => import("@/core/private/UserManagement/ClinicManagement/ClinicTable.tsx"));
 const PatientManagement = lazy(() => import("@/core/private/PatientMangement/PatientTable.tsx"));
 const PermissionsTable = lazy(() => import("../core/private/UserManagement/RoleManagement/PermissionTable/PermissionTable.tsx"));
 const Appointment=lazy(()=>import("../core/private/AppointmentMangement/AppointmentTabs.tsx"))

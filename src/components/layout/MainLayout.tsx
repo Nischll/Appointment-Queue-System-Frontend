@@ -53,7 +53,7 @@ const MainLayout = () => {
       {/* Sidebar */}
       <div
         className={cn(
-          "fixed inset-y-0 left-0 z-40 w-72 transform bg-card border-r border-border transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:flex lg:flex-col",
+          "fixed inset-y-0 left-0 z-40 w-65 transform bg-card border-r border-border transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:flex lg:flex-col",
           sidebarOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
@@ -77,7 +77,7 @@ const MainLayout = () => {
           </div>
 
           {/* Nav */}
-          <nav className="flex-1 overflow-y-auto px-4 py-3 column-scrollbar">
+          <nav className="flex-1 overflow-y-auto px-2 py-1 column-scrollbar">
             <SidebarNav modules={user?.moduleList || []} />
           </nav>
 
@@ -124,7 +124,7 @@ const MainLayout = () => {
         </div>
 
         {/* Scrollable Page Content */}
-        <div className="flex-1 w-full overflow-y-auto overflow-x-hidden column-scrollbar">
+        <div className="flex-1 w-full overflow-y-auto overflow-x-hidden column-scrollbar py-2 px-3">
           <Suspense fallback={<LoadingData />}>
             <Outlet />
           </Suspense>

@@ -3,7 +3,7 @@ export const API_ENDPOINTS = {
   AUTH: {
     LOGIN: "api/auth/login",
     REFRESH: "api/auth/refresh",
-    // SIGNUP: "api/auth/signup",
+    SIGNUP: "api/auth/signup",
     // FORGOT_PASSWORD: "api/auth/forgot-password",
     // POST_OTP: "api/auth/verify-otp-forget-password",
     // RESEND_OTP: "api/auth/resend-otp",
@@ -57,7 +57,7 @@ export const API_ENDPOINTS = {
         ADD_ROLE:"/api/role/",
         UPDATE_ROLE:(id:string|number|undefined)=>`/api/role/${id}`,
         GET_PERMISSIONS:(id:string|number|undefined)=>`api/role/permissions/${id}`,
-        UPDATE_PERMISSIONS:(id:string|number|undefined)=>`/api/permissions/${id}`,
+        UPDATE_PERMISSIONS:(id:string|number|undefined)=>`/api/role/permissions/${id}`,
     },
     CLINIC :{
       GET_CLINIC:"api/clinics/",
@@ -74,15 +74,15 @@ export const API_ENDPOINTS = {
         UPDATE_DOCTOR:  (id:string|number|undefined,)=>`api/doctor/${id}`,
     },
     DEPARTMENT :{
-        GET_DEPARTMENT:"api/departments/",
-        ADD_DEPARTMENT:"api/departments/",
+        GET_DEPARTMENT:"api/departments",
+        ADD_DEPARTMENT:"api/departments",
         DELETE_DEPARTMENT:(id:string|number|undefined)=>`api/departments/delete/${id}`,
         GET_DEPARTMENT_BY_ID:(id:string|number|undefined)=>`api/departments/${id}`,
         UPDATE_DEPARTMENT:  (departmentId:string|number|undefined)=>`api/departments/${departmentId}`,
     },
     PATIENT :{
-        GET_PATIENT:"api/patient/",
-        ADD_PATIENT:"api/patient/",
+        GET_PATIENT:"api/patient",
+        ADD_PATIENT:"api/patient",
         DELETE_PATIENT:(id:string|number|undefined)=>`api/patient/${id}`,
         GET_PATIENT_BY_ID:(id:string|number|undefined)=>`api/patient/${id}`,
         UPDATE_PATIENT:  (id:string|number|undefined)=>`api/patient/${id}`,

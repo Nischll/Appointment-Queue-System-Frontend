@@ -13,7 +13,7 @@ import {
     useSaveDoctorShift,
     useGetDoctorShift,
 } from "@/components/ApiCall/Api.ts";
-import { Doctor } from "@/core/private/ClinicMnagement/DoctorManagement/doctorTypes.tsx";
+import { Doctor } from "./doctorTypes";
 
 /* ---------- TYPES ---------- */
 
@@ -79,10 +79,12 @@ const DoctorShiftDialog = ({
                                open,
                                onClose,
                                doctor,
+                               onSuccess,
                            }: {
     open: boolean;
     onClose: () => void;
     doctor: Doctor;
+    onSuccess?: () => void;
 }) => {
     const saveShift = useSaveDoctorShift(
         doctor.id,
@@ -96,8 +98,8 @@ const DoctorShiftDialog = ({
     );
 
     const savedShifts = useMemo<ApiDoctorShift[]>(
-        () => data?.data ?? [],
-        [data?.data]
+        () => (data as any)?.data ?? [],
+        [(data as any)?.data]
     );
 
 
@@ -149,7 +151,7 @@ const DoctorShiftDialog = ({
         }
 
         setDays(baseDays);
-    }, [ doctor.id, doctor.department_id],doctor.name);
+    }, [doctor.id, doctor.department_id, savedShifts]);
 
 
     /* ---------- HANDLERS ---------- */
@@ -273,7 +275,12 @@ const DoctorShiftDialog = ({
 
         saveShift.mutate(
             { shifts },
-            { onSuccess: () => onClose() }
+            { 
+                onSuccess: () => {
+                    onSuccess?.(); // Trigger refetch in parent component
+                    onClose();
+                }
+            }
         );
     };
 

@@ -26,103 +26,103 @@ import {
 } from "./DashboardTypes";
 
 export default function Dashboard() {
-  const [branchId, setBranchId] = useState<number | null>(null);
-  const { branches, branchLoading } = useBranches();
-  const { setLowStock, setOutOfStock } = useDashboardContext();
+  // const [branchId, setBranchId] = useState<number | null>(null);
+  // const { branches, branchLoading } = useBranches();
+  // const { setLowStock, setOutOfStock } = useDashboardContext();
 
-  useEffect(() => {
-    if (branches.length > 0 && branchId === null) {
-      setBranchId(branches[0].value);
-    }
-  }, [branches]);
+  // useEffect(() => {
+  //   if (branches.length > 0 && branchId === null) {
+  //     setBranchId(branches[0].value);
+  //   }
+  // }, [branches]);
 
-  const isQueryEnabled = branchId !== null;
+  // const isQueryEnabled = branchId !== null;
 
-  const { data: fetchedHeaderData } = useApiGet<GetDashboardHeaderDataResponse>(
-    QUERY_KEYS.GET_DASHBOARD_HEADER_DATA(branchId),
-    {
-      retry: 0,
-      enabled: isQueryEnabled,
-    }
-  );
+  // const { data: fetchedHeaderData } = useApiGet<GetDashboardHeaderDataResponse>(
+  //   QUERY_KEYS.GET_DASHBOARD_HEADER_DATA(branchId),
+  //   {
+  //     retry: 0,
+  //     enabled: isQueryEnabled,
+  //   }
+  // );
 
-  useEffect(() => {
-    if (fetchedHeaderData?.data) {
-      setLowStock(fetchedHeaderData.data.lowStock);
-      setOutOfStock(fetchedHeaderData.data.outOfStock);
-    }
-  }, [fetchedHeaderData]);
+  // useEffect(() => {
+  //   if (fetchedHeaderData?.data) {
+  //     setLowStock(fetchedHeaderData.data.lowStock);
+  //     setOutOfStock(fetchedHeaderData.data.outOfStock);
+  //   }
+  // }, [fetchedHeaderData]);
 
-  const stats = [
-    {
-      title: "Today's Sales",
-      value: fetchedHeaderData?.data?.todaySales,
-      // change: "+12% from yesterday",
-      icon: ShoppingCart,
-      trend: fetchedHeaderData?.data?.todaySalesTrend,
-    },
-    {
-      title: "Monthly Revenue",
-      value: fetchedHeaderData?.data?.monthlySales,
-      // change: "+18% from last month",
-      icon: TrendingUp,
-      trend: fetchedHeaderData?.data?.monthlySalesTrend,
-    },
-    {
-      title: "Weekly Revenue",
-      value: fetchedHeaderData?.data?.weeklySales,
-      // change: "Within next 30 days",
-      icon: TrendingUp,
-      trend: fetchedHeaderData?.data?.weeklySalesTrend,
-    },
-    {
-      title: "Products in Stock",
-      value: fetchedHeaderData?.data?.productStock,
-      // change: "23 low stock items",
-      icon: Package,
-      // trend: "warning",
-    },
-    {
-      title: "Active Patients",
-      value: fetchedHeaderData?.data?.activePatients,
-      // change: "+5 new today",
-      icon: Users,
-      // trend: "up",
-    },
-    {
-      title: "VAT Collected",
-      value: fetchedHeaderData?.data?.vatAmount,
-      // change: "13% VAT this month",
-      icon: DollarSign,
-      // trend: "neutral",
-    },
-  ];
+  // const stats = [
+  //   {
+  //     title: "Today's Sales",
+  //     value: fetchedHeaderData?.data?.todaySales,
+  //     // change: "+12% from yesterday",
+  //     icon: ShoppingCart,
+  //     trend: fetchedHeaderData?.data?.todaySalesTrend,
+  //   },
+  //   {
+  //     title: "Monthly Revenue",
+  //     value: fetchedHeaderData?.data?.monthlySales,
+  //     // change: "+18% from last month",
+  //     icon: TrendingUp,
+  //     trend: fetchedHeaderData?.data?.monthlySalesTrend,
+  //   },
+  //   {
+  //     title: "Weekly Revenue",
+  //     value: fetchedHeaderData?.data?.weeklySales,
+  //     // change: "Within next 30 days",
+  //     icon: TrendingUp,
+  //     trend: fetchedHeaderData?.data?.weeklySalesTrend,
+  //   },
+  //   {
+  //     title: "Products in Stock",
+  //     value: fetchedHeaderData?.data?.productStock,
+  //     // change: "23 low stock items",
+  //     icon: Package,
+  //     // trend: "warning",
+  //   },
+  //   {
+  //     title: "Active Patients",
+  //     value: fetchedHeaderData?.data?.activePatients,
+  //     // change: "+5 new today",
+  //     icon: Users,
+  //     // trend: "up",
+  //   },
+  //   {
+  //     title: "VAT Collected",
+  //     value: fetchedHeaderData?.data?.vatAmount,
+  //     // change: "13% VAT this month",
+  //     icon: DollarSign,
+  //     // trend: "neutral",
+  //   },
+  // ];
 
-  const getTrendColor = (trend: string | undefined) => {
-    switch (trend) {
-      case DashboardStat.Positive:
-        return "text-success";
-      case DashboardStat.Negative:
-        return "text-warning";
-      case DashboardStat.Neutral:
-        return "text-muted-foreground";
-      default:
-        return "text-muted-foreground";
-    }
-  };
+  // const getTrendColor = (trend: string | undefined) => {
+  //   switch (trend) {
+  //     case DashboardStat.Positive:
+  //       return "text-success";
+  //     case DashboardStat.Negative:
+  //       return "text-warning";
+  //     case DashboardStat.Neutral:
+  //       return "text-muted-foreground";
+  //     default:
+  //       return "text-muted-foreground";
+  //   }
+  // };
 
-  const getTrendBg = (trend: string | undefined) => {
-    switch (trend) {
-      case DashboardStat.Positive:
-        return "bg-success-light";
-      case DashboardStat.Negative:
-        return "bg-warning-light";
-      case DashboardStat.Neutral:
-        return "bg-muted";
-      default:
-        return "bg-muted";
-    }
-  };
+  // const getTrendBg = (trend: string | undefined) => {
+  //   switch (trend) {
+  //     case DashboardStat.Positive:
+  //       return "bg-success-light";
+  //     case DashboardStat.Negative:
+  //       return "bg-warning-light";
+  //     case DashboardStat.Neutral:
+  //       return "bg-muted";
+  //     default:
+  //       return "bg-muted";
+  //   }
+  // };
 
   return (
     <div className="p-6 space-y-6">
@@ -135,7 +135,7 @@ export default function Dashboard() {
             Welcome to Appointment & Queue Management System
           </p>
         </div>
-        <div className="w-64">
+        {/* <div className="w-64">
           {" "}
           <Select
             value={branchId !== null ? String(branchId) : undefined}
@@ -153,11 +153,11 @@ export default function Dashboard() {
               ))}
             </SelectContent>
           </Select>
-        </div>
+        </div> */}
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {stats.map((stat) => {
           const IconComponent = stat.icon;
           return (
@@ -179,22 +179,12 @@ export default function Dashboard() {
                 <div className="text-2xl font-bold text-foreground">
                   {Math.round(stat.value ?? 0)}
                 </div>
-                {/* <p className={`text-xs ${getTrendColor(stat.trend)} mt-1`}>
-                  {stat.change}
-                </p> */}
+          
               </CardContent>
             </Card>
           );
         })}
-      </div>
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <QuickActions />
-      </div>
-
-      {/* Recent Activity */}
-      <RecentActivity />
+      </div> */}
     </div>
   );
 }

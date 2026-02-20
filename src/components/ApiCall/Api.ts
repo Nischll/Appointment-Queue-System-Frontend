@@ -40,7 +40,7 @@ export const useUpdateRole = (id: string | number | undefined) =>
 export const useGetPermissions = (id: string | number | undefined) =>
     useApiGet<ApiListResponse<PermissionApiItem>>(API_ENDPOINTS.ROLE.GET_PERMISSIONS(id));
 export const useUpdatePermissions = (id: string | number | undefined) =>
-    useApiMutation("put", API_ENDPOINTS.ROLE.UPDATE_ROLE(id));
+    useApiMutation("put", API_ENDPOINTS.ROLE.UPDATE_PERMISSIONS(id));
 export const useGetClinic = () =>
     useApiGet<ApiListResponse<Clinic>>(API_ENDPOINTS.CLINIC.GET_CLINIC);
 export const useUpdateClinic = (id: string | number | undefined) =>
