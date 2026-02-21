@@ -20,7 +20,7 @@ const Appointment=lazy(()=>import("../core/private/AppointmentMangement/Appointm
 
 const BookAppointment=lazy(()=>import("../core/private/AppointmentMangement/AddAppointment.tsx"))
 const MyAppointments = lazy(() => import("../core/private/Patient/MyAppointments/MyAppointments"));
-const PatientProfile = lazy(() => import("../core/private/Patient/Profile/PatientProfile"));
+const ProfilePage = lazy(() => import("../core/private/Profile/ProfilePage"));
 // const Configurations = lazy(
 //   () => import("../core/private/Configurations/Confgurations")
 // );
@@ -92,7 +92,7 @@ export const privateRoutes: RouteObject[] = [
         },
         {
             path: "profile",
-            element: <PatientProfile />
+            element: <ProfilePage />
         }
 
 

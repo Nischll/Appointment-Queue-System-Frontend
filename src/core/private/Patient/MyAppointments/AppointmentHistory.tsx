@@ -146,9 +146,9 @@ export default function AppointmentHistory() {
       header: "Notes",
       accessor: (appointment) =>
         appointment.notes ? (
-          <div className="flex items-start gap-2 min-w-[200px] max-w-[300px]">
+          <div className="flex items-start gap-2 min-w-0">
             <FileText className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-            <span className="text-xs text-muted-foreground line-clamp-2">
+            <span className="text-xs text-muted-foreground line-clamp-2 break-words">
               {appointment.notes}
             </span>
           </div>
@@ -284,10 +284,11 @@ export default function AppointmentHistory() {
           </CardContent>
         </Card>
       ) : (
-        <div className="w-full">
+        <div className="w-full max-w-full min-w-0">
           <Table
             data={appointments}
             columns={columns}
+            fitToViewport={true}
             searchable={false}
             pagination={true}
             showPageSize={true}

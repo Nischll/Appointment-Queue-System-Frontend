@@ -13,10 +13,15 @@ function getIcon(name?: string) {
   return Icon ?? Icons.Circle;
 }
 
+function isProfileModule(item: ModuleItem) {
+  return item.path?.toLowerCase().includes("profile") || item.code === "P";
+}
+
 export function SidebarNav({ modules }: { modules: ModuleItem[] }) {
+  const sidebarModules = modules.filter((item) => !isProfileModule(item));
   return (
     <ul className="space-y-1">
-      {modules.map((item) => (
+      {sidebarModules.map((item) => (
         <SidebarItem key={item.name} item={item} />
       ))}
     </ul>

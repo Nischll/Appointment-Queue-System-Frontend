@@ -1,28 +1,37 @@
 import { Suspense, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import {
-  LayoutDashboard,
-  Package,
-  BarChart3,
-  Menu,
-  X,
-  LogOut,
-  Bolt,
-} from "lucide-react";
+import { Package, Menu, X, LogOut, User, ChevronDown } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useApiMutation } from "../ApiCall/ApiMutation";
 import { API_ENDPOINTS } from "../constants/ApiEndpoints/apiEndpoints";
 import { useAuth } from "../ContextApi/AuthContext";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { LoadingData } from "@/helper/loadingData";
 import { SidebarNav } from "./SidebarNav";
 
 const MainLayout = () => {
   const { user, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
   const navigate = useNavigate();
+
+  const profileModule = user?.moduleList?.find(
+    (m) => m.path?.toLowerCase().includes("profile") || m.code === "P"
+  );
+  const profilePath = profileModule?.path?.startsWith("/")
+    ? profileModule.path
+    : profileModule?.path
+      ? `/${profileModule.path}`
+      : "/profile";
+  const showProfile = !!profileModule;
+  const displayName = user?.fullName || user?.username || "User";
 
   const { mutate: postLogout, isPending } = useApiMutation(
     "post",
@@ -105,20 +114,45 @@ const MainLayout = () => {
               <Menu className="h-5 w-5" />
             </Button>
 
-            <div className="ml-auto flex gap-5">
-              <div className="text-sm text-muted-foreground">
-                Welcome to Appointment & Queue Management System
-              </div>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <LogOut
-                    size={20}
+            <div className="hidden sm:block text-sm text-muted-foreground">
+              Welcome to Appointment & Queue Management System
+            </div>
+            <div className="ml-auto flex items-center gap-3">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    type="button"
+                    className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-muted text-foreground transition-colors outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                    aria-label="User menu"
+                  >
+                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                      <User className="h-4 w-4 text-primary" />
+                    </div>
+                    <span className="text-sm font-medium max-w-[140px] truncate hidden sm:inline">
+                      {displayName}
+                    </span>
+                    <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  {showProfile && (
+                    <DropdownMenuItem asChild>
+                      <Link to={profilePath} className="flex items-center gap-2 cursor-pointer py-2.5">
+                        <User className="h-4 w-4" />
+                        Profile
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator className="my-1" />
+                  <DropdownMenuItem
                     onClick={handleLogout}
-                    className="cursor-pointer"
-                  />
-                </TooltipTrigger>
-                <TooltipContent side="top">Log out</TooltipContent>
-              </Tooltip>
+                    className="flex items-center gap-2 text-destructive focus:text-destructive cursor-pointer py-2.5 mt-1"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>

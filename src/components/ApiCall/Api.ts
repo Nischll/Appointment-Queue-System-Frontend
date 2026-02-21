@@ -6,6 +6,8 @@ import {useApiMutation} from "./ApiMutation";
 import {PermissionApiItem, RoleResponse} from "@/core/private/UserManagement/RoleManagement/roleTypes.ts";
 import {Patient} from "@/core/private/PatientMangement/type.ts";
 import { Clinic, Doctor } from "@/core/private/Patient/MyAppointments/appointmentTypes";
+import { PatientProfileResponse } from "@/core/private/Patient/Profile/profileTypes";
+import { StaffProfileResponse } from "@/core/private/Profile/staffProfileTypes";
 
 export type ApiListResponse<T> = {
     statusCode: number;
@@ -255,3 +257,29 @@ export const useGetPatientAppointmentHistory = (
         enabled: enabled && !!date_from && !!date_to,
         retry: 0,
     });
+
+// Patient Profile
+export const useGetPatientProfile = () =>
+    useApiGet<ApiSingleResponse<PatientProfileResponse>>(API_ENDPOINTS.PATIENT.GET_PROFILE, {
+        retry: 0,
+        refetchOnMount: true,
+    });
+
+export const useUpdatePatientProfile = () =>
+    useApiMutation("put", API_ENDPOINTS.PATIENT.UPDATE_PROFILE);
+
+export const useChangePatientPassword = () =>
+    useApiMutation("post", API_ENDPOINTS.PATIENT.CHANGE_PASSWORD);
+
+// Common Profile API (Staff / Superadmin) – GET & PUT /api/profile, POST change-password
+export const useGetProfile = () =>
+    useApiGet<ApiSingleResponse<StaffProfileResponse>>(API_ENDPOINTS.PROFILE.GET, {
+        retry: 0,
+        refetchOnMount: true,
+    });
+
+export const useUpdateProfile = () =>
+    useApiMutation("put", API_ENDPOINTS.PROFILE.UPDATE);
+
+export const useChangeProfilePassword = () =>
+    useApiMutation("post", API_ENDPOINTS.PROFILE.CHANGE_PASSWORD);

@@ -4,11 +4,13 @@ export const API_ENDPOINTS = {
     LOGIN: "api/auth/login",
     REFRESH: "api/auth/refresh",
     SIGNUP: "api/auth/signup",
-    // FORGOT_PASSWORD: "api/auth/forgot-password",
-    // POST_OTP: "api/auth/verify-otp-forget-password",
-    // RESEND_OTP: "api/auth/resend-otp",
-    // RESET_PASSWORD: "api/auth/reset-password",
     LOGOUT: "api/auth/logout",
+  },
+  /** Common profile API for Staff / Superadmin (GET & PUT profile, change-password) */
+  PROFILE: {
+    GET: "api/profile",
+    UPDATE: "api/profile",
+    CHANGE_PASSWORD: "api/profile/change-password",
   },
   DASHBOARD: {
     GET_HEADER: (branchId: number | null) => `api/dashboard/header/${branchId}`,
@@ -93,6 +95,10 @@ export const API_ENDPOINTS = {
         GET_LIVE_APPOINTMENT: "patient/appointment/live",
         GET_UPCOMING_APPOINTMENTS: (status: "REQUESTED" | "BOOKED") => `patient/appointment/upcoming?status=${status}`,
         GET_APPOINTMENT_HISTORY: "patient/appointment/history",
+        // Patient Profile
+        GET_PROFILE: "patient/profile",
+        UPDATE_PROFILE: "patient/profile",
+        CHANGE_PASSWORD: "patient/profile/change-password",
     },
     DOCTOR_SHIFT :{
         GET_DOCTOR_SHIFT:(doctorId:string|number|undefined,departmentId:string|number|undefined)=>`/api/doctor-shifts/${doctorId}/${departmentId}`,

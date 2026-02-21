@@ -35,6 +35,8 @@ type TableProps<T extends { id: number | string }> = {
   data: T[];
   columns: Column<T>[];
   className?: string;
+  /** When true, table fits container width; columns share space and content wraps/truncates so nothing is hidden */
+  fitToViewport?: boolean;
   emptyText?: string;
   searchable?: boolean;
   showPageSize?: boolean;
@@ -64,6 +66,7 @@ function Table<T extends { id: number | string }>({
   data,
   columns,
   className = "",
+  fitToViewport = false,
   emptyText = "No data found.",
   searchable = false,
   showPageSize = false,
@@ -708,10 +711,12 @@ function Table<T extends { id: number | string }>({
     );
   }
 
+  const tableWrapperClass = fitToViewport
+    ? `border border-gray-300 rounded-lg shadow-sm w-full min-w-0 ${className}`
+    : `overflow-x-auto border border-gray-300 rounded-lg shadow-sm w-full ${className}`;
+
   return (
-    <div
-      className={`overflow-x-auto border border-gray-300 rounded-lg shadow-sm w-full ${className}`}
-    >
+    <div className={tableWrapperClass}>
       <div className="flex justify-between items-center p-2">
         {searchable ? (
           // <div className="p-2">
@@ -759,10 +764,25 @@ function Table<T extends { id: number | string }>({
         {/*    </select>*/}
         {/*)}*/}
       </div>
-      <table className="w-full border rounded-2xl table-auto divide-y divide-gray-200" style={{ minWidth: 'max-content' }}>
+      <table
+        className={`w-full border rounded-2xl divide-y divide-gray-200 ${fitToViewport ? "table-fixed" : "table-auto"}`}
+        style={fitToViewport ? { width: "100%" } : { minWidth: "max-content" }}
+      >
+        {fitToViewport && (
+          <colgroup>
+            <col style={{ width: "4%" }} />
+            {columns.map((_, i) => (
+              <col key={i} style={{ width: `${(100 - 4 - (onEdit || onDelete || onView || onApprove ? 6 : 0)) / columns.length}%` }} />
+            ))}
+            {(onEdit || onDelete || onView || onApprove) && (
+              <col style={{ width: "6%" }} />
+            )}
+          </colgroup>
+        )}
         <thead className={`bg-white text-black border-b-4 shadow-2xl`}>
           <tr>
-            <th className="px-4 py-3 text-left text-xs font-semibold">
+            <th className={`py-3 text-left text-xs font-semibold ${fitToViewport ? "px-2" : "px-4"}`}
+              style={fitToViewport ? { width: "4%" } : undefined}>
               <div className="flex items-center gap-2">
                 {selectable && (
                   <input
@@ -779,16 +799,16 @@ function Table<T extends { id: number | string }>({
               return (
                 <th
                   key={i}
-                  className={`px-6 py-3 text-left text-sm font-semibold tracking-wider ${
-                    col.className || ""
-                  } ${isSortableCol ? "cursor-pointer select-none" : ""}`}
+                  className={`py-3 text-left text-sm font-semibold tracking-wider ${
+                    fitToViewport ? "px-2 min-w-0 break-words" : "px-6"
+                  } ${col.className || ""} ${isSortableCol ? "cursor-pointer select-none" : ""}`}
                   onClick={() => {
                     if (isSortableCol && isStringKeyOf<T>(col.accessor)) {
                       handleSort(col.accessor);
                     }
                   }}
                 >
-                  <div className="flex items-center text-sm">
+                  <div className={`flex items-center text-sm ${fitToViewport ? "break-words line-clamp-2" : ""}`}>
                     {col.header}
                     {isSortableCol &&
                       isStringKeyOf<T>(col.accessor) &&
@@ -798,7 +818,8 @@ function Table<T extends { id: number | string }>({
               );
             })}
             {(onEdit || onDelete || onView || onApprove) && (
-              <th className="px-6 py-3 text-left text-sm font-semibold tracking-wider">
+              <th className={`py-3 text-left text-sm font-semibold tracking-wider ${fitToViewport ? "px-2" : "px-6"}`}
+                style={fitToViewport ? { width: "6%" } : undefined}>
                 Actions
               </th>
             )}
@@ -832,7 +853,7 @@ function Table<T extends { id: number | string }>({
                     index % 2 === 0 ? "bg-[#F2F8FA]" : "bg-white"
                   } hover:bg-gray-50`}
                 >
-                  <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-700">
+                  <td className={`py-4 text-xs text-gray-700 ${fitToViewport ? "px-2 whitespace-nowrap" : "px-6 whitespace-nowrap"}`}>
                     <div className="flex items-center gap-2">
                       {selectable && (
                         <input
@@ -861,18 +882,20 @@ function Table<T extends { id: number | string }>({
                     return (
                       <td
                         key={i}
-                        className="px-6 py-4 whitespace-nowrap text-xs text-gray-700"
+                        className={`py-4 text-xs text-gray-700 ${fitToViewport ? "px-2 min-w-0 break-words align-top" : "px-6 whitespace-nowrap"}`}
                         title={
                           typeof rawValue === "string" ? rawValue : undefined
                         }
                       >
-                        {typeof rawValue === "function"
-                          ? rawValue(row, i)
-                          : React.isValidElement(rawValue)
-                            ? rawValue
-                            : typeof rawValue === "object" && rawValue !== null
-                              ? JSON.stringify(rawValue)
-                              : (rawValue ?? "-")}
+                        <div className={fitToViewport ? "break-words line-clamp-3" : ""}>
+                          {typeof rawValue === "function"
+                            ? rawValue(row, i)
+                            : React.isValidElement(rawValue)
+                              ? rawValue
+                              : typeof rawValue === "object" && rawValue !== null
+                                ? JSON.stringify(rawValue)
+                                : (rawValue ?? "-")}
+                        </div>
                       </td>
                     );
                   })}
@@ -881,7 +904,7 @@ function Table<T extends { id: number | string }>({
                     onView ||
                     onApprove ||
                     columns.some((col) => col.expandable)) && (
-                    <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-700">
+                    <td className={`py-4 text-xs text-gray-700 ${fitToViewport ? "px-2 whitespace-nowrap" : "px-6 whitespace-nowrap"}`}>
                       {renderActions(row, index)}
                     </td>
                   )}

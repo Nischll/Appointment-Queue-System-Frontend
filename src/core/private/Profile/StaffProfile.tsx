@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -15,48 +14,33 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  useGetPatientProfile,
-  useUpdatePatientProfile,
-  useChangePatientPassword,
+  useGetProfile,
+  useUpdateProfile,
+  useChangeProfilePassword,
 } from "@/components/ApiCall/Api";
 import { API_ENDPOINTS } from "@/components/constants/ApiEndpoints/apiEndpoints";
-import { patientProfileUpdateSchema, changePasswordSchema } from "@/components/formValidation/Schemas";
+import { staffProfileUpdateSchema, changePasswordSchema } from "@/components/formValidation/Schemas";
 import type { z } from "zod";
-import type { PatientProfileResponse, UpdatePatientProfilePayload, ChangePasswordPayload } from "./profileTypes";
+import type {
+  StaffProfileResponse,
+  UpdateStaffProfilePayload,
+  ChangePasswordPayload,
+} from "./staffProfileTypes";
 import {
   User,
   Mail,
   Phone,
   Calendar,
-  MapPin,
-  Droplets,
   UserCircle,
   Lock,
   AlertCircle,
   Edit2,
 } from "lucide-react";
 
-export const bloodTypeOptions = [
-  { value: "Ap", label: "A+" },
-  { value: "An", label: "A-" },
-  { value: "Bp", label: "B+" },
-  { value: "Bn", label: "B-" },
-  { value: "Op", label: "O+" },
-  { value: "On", label: "O-" },
-  { value: "ABp", label: "AB+" },
-  { value: "ABn", label: "AB-" },
-] as const;
-
-function getBloodGroupLabel(value: string | null | undefined): string {
-  if (!value) return "—";
-  const opt = bloodTypeOptions.find((o) => o.value === value);
-  return opt?.label ?? value;
-}
-
-type ProfileFormValues = z.infer<typeof patientProfileUpdateSchema>;
+type StaffProfileFormValues = z.infer<typeof staffProfileUpdateSchema>;
 type ChangePasswordFormValues = z.infer<typeof changePasswordSchema>;
 
-function getDefaultProfileValues(data: PatientProfileResponse | undefined): Partial<ProfileFormValues> {
+function getDefaultValues(data: StaffProfileResponse | undefined): Partial<StaffProfileFormValues> {
   if (!data) {
     return {
       full_name: "",
@@ -64,46 +48,29 @@ function getDefaultProfileValues(data: PatientProfileResponse | undefined): Part
       username: "",
       phone: "",
       gender: null,
-      date_of_birth: undefined,
-      age: undefined,
-      address: undefined,
-      blood_group: undefined,
-      emergency_contact_name: undefined,
-      emergency_contact_phone: undefined,
     };
   }
-  const p = data.profile ?? {};
-  const bloodValue = p.blood_group;
-  const bloodGroup =
-    bloodValue && bloodTypeOptions.some((o) => o.value === bloodValue)
-      ? (bloodValue as ProfileFormValues["blood_group"])
-      : undefined;
+  const d = data as Record<string, unknown>;
   return {
-    full_name: data.full_name ?? "",
-    email: data.email ?? "",
-    username: data.username ?? "",
-    phone: data.phone ?? "",
-    gender: (data.gender as "M" | "F") ?? null,
-    date_of_birth: p.date_of_birth ?? undefined,
-    age: p.age ?? undefined,
-    address: p.address ?? undefined,
-    blood_group: bloodGroup,
-    emergency_contact_name: p.emergency_contact_name ?? undefined,
-    emergency_contact_phone: p.emergency_contact_phone ?? undefined,
+    full_name: (d.full_name ?? d.fullName ?? "") as string,
+    email: (d.email ?? "") as string,
+    username: (d.username ?? "") as string,
+    phone: (d.phone ?? "") as string,
+    gender: (d.gender as "M" | "F") ?? null,
   };
 }
 
-export default function PatientProfile() {
+export default function StaffProfile() {
   const queryClient = useQueryClient();
-  const { data: profileResponse, isLoading, isError } = useGetPatientProfile();
+  const { data: profileResponse, isLoading, isError } = useGetProfile();
   const profileData = profileResponse?.data;
 
-  const updateProfile = useUpdatePatientProfile();
-  const changePassword = useChangePatientPassword();
+  const updateProfile = useUpdateProfile();
+  const changePassword = useChangeProfilePassword();
 
-  const profileForm = useForm<ProfileFormValues>({
-    resolver: zodResolver(patientProfileUpdateSchema),
-    defaultValues: getDefaultProfileValues(profileData),
+  const profileForm = useForm<StaffProfileFormValues>({
+    resolver: zodResolver(staffProfileUpdateSchema),
+    defaultValues: getDefaultValues(profileData),
   });
 
   const passwordForm = useForm<ChangePasswordFormValues>({
@@ -119,32 +86,26 @@ export default function PatientProfile() {
 
   useEffect(() => {
     if (profileData) {
-      profileForm.reset(getDefaultProfileValues(profileData));
+      profileForm.reset(getDefaultValues(profileData));
     }
   }, [profileData, profileForm.reset]);
 
   const handleCancelEdit = () => {
     setIsEditing(false);
-    if (profileData) profileForm.reset(getDefaultProfileValues(profileData));
+    if (profileData) profileForm.reset(getDefaultValues(profileData));
   };
 
-  const onProfileSubmit = (values: ProfileFormValues) => {
-    const payload: UpdatePatientProfilePayload = {
+  const onProfileSubmit = (values: StaffProfileFormValues) => {
+    const payload: UpdateStaffProfilePayload = {
       full_name: values.full_name,
       email: values.email,
       username: values.username,
-      phone: values.phone ?? "",
-      gender: values.gender,
-      date_of_birth: values.date_of_birth ?? null,
-      age: typeof values.age === "number" ? values.age : values.age ? Number(values.age) : null,
-      address: values.address ?? null,
-      blood_group: values.blood_group ?? null,
-      emergency_contact_name: values.emergency_contact_name ?? null,
-      emergency_contact_phone: values.emergency_contact_phone ?? null,
+      phone: values.phone?.trim() || null,
+      gender: values.gender ?? null,
     };
     updateProfile.mutate(payload as any, {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.PATIENT.GET_PROFILE] });
+        queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.PROFILE.GET] });
         setIsEditing(false);
       },
     });
@@ -203,7 +164,6 @@ export default function PatientProfile() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-xl font-bold text-foreground">Profile</h1>
@@ -220,7 +180,6 @@ export default function PatientProfile() {
         </Button>
       </div>
 
-      {/* Personal Information */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -229,10 +188,7 @@ export default function PatientProfile() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <form
-            onSubmit={profileForm.handleSubmit(onProfileSubmit)}
-            className="space-y-6"
-          >
+          <form onSubmit={profileForm.handleSubmit(onProfileSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="full_name" className="flex items-center gap-2">
@@ -339,184 +295,30 @@ export default function PatientProfile() {
               <div className="space-y-2">
                 <Label htmlFor="gender" className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
-                  Gender <span className="text-destructive">*</span>
-                </Label>
-                {isEditing ? (
-                  <>
-                    <Select
-                      value={profileForm.watch("gender") ?? ""}
-                      onValueChange={(v) => profileForm.setValue("gender", v === "" ? null : (v as "M" | "F"))}
-                    >
-                      <SelectTrigger id="gender">
-                        <SelectValue placeholder="Select gender" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="M">Male</SelectItem>
-                        <SelectItem value="F">Female</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    {profileForm.formState.errors.gender && (
-                      <p className="text-sm text-destructive">
-                        {profileForm.formState.errors.gender.message}
-                      </p>
-                    )}
-                  </>
-                ) : (
-                  <p className="text-sm font-medium py-2 px-3 bg-muted rounded-md">
-                    {profileForm.watch("gender") === "M" ? "Male" : profileForm.watch("gender") === "F" ? "Female" : "—"}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="blood_group" className="flex items-center gap-2">
-                  <Droplets className="h-4 w-4 text-muted-foreground" />
-                  Blood Group
+                  Gender
                 </Label>
                 {isEditing ? (
                   <Select
-                    value={profileForm.watch("blood_group") ?? ""}
+                    value={profileForm.watch("gender") ?? ""}
                     onValueChange={(v) =>
-                      profileForm.setValue("blood_group", v === "" ? null : (v as ProfileFormValues["blood_group"]))
+                      profileForm.setValue("gender", v === "" ? null : (v as "M" | "F"))
                     }
                   >
-                    <SelectTrigger id="blood_group">
-                      <SelectValue placeholder="Select blood group" />
+                    <SelectTrigger id="gender">
+                      <SelectValue placeholder="Select gender" />
                     </SelectTrigger>
                     <SelectContent>
-                      {bloodTypeOptions.map((opt) => (
-                        <SelectItem key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </SelectItem>
-                      ))}
+                      <SelectItem value="M">Male</SelectItem>
+                      <SelectItem value="F">Female</SelectItem>
                     </SelectContent>
                   </Select>
                 ) : (
                   <p className="text-sm font-medium py-2 px-3 bg-muted rounded-md">
-                    {getBloodGroupLabel(profileForm.watch("blood_group"))}
-                  </p>
-                )}
-              </div>
-
-              {/* DOB / Age: at least one required */}
-              <div className="space-y-2 md:col-span-2">
-                <p className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                  <Calendar className="h-4 w-4" />
-                  Date of Birth or Age
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Provide either Date of Birth or Age (at least one is required).
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="date_of_birth">Date of Birth</Label>
-                    {isEditing ? (
-                      <>
-                        <Input
-                          id="date_of_birth"
-                          type="date"
-                          {...profileForm.register("date_of_birth")}
-                        />
-                        {profileForm.formState.errors.date_of_birth && (
-                          <p className="text-sm text-destructive">
-                            {profileForm.formState.errors.date_of_birth.message}
-                          </p>
-                        )}
-                      </>
-                    ) : (
-                      <p className="text-sm font-medium py-2 px-3 bg-muted rounded-md">
-                        {profileForm.watch("date_of_birth") || "—"}
-                      </p>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="age">Age</Label>
-                    {isEditing ? (
-                      <>
-                        <Input
-                          id="age"
-                          type="number"
-                          min={1}
-                          max={150}
-                          placeholder="Enter age"
-                          {...profileForm.register("age")}
-                        />
-                        {profileForm.formState.errors.age && (
-                          <p className="text-sm text-destructive">
-                            {typeof profileForm.formState.errors.age.message === "string"
-                              ? profileForm.formState.errors.age.message
-                              : "Invalid age"}
-                          </p>
-                        )}
-                      </>
-                    ) : (
-                      <p className="text-sm font-medium py-2 px-3 bg-muted rounded-md">
-                        {profileForm.watch("age") ?? "—"}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="address" className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
-                  Address
-                </Label>
-                {isEditing ? (
-                  <Textarea
-                    id="address"
-                    {...profileForm.register("address")}
-                    placeholder="Enter address"
-                    rows={2}
-                  />
-                ) : (
-                  <p className="text-sm font-medium py-2 px-3 bg-muted rounded-md whitespace-pre-wrap">
-                    {profileForm.watch("address") || "—"}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="emergency_contact_name" className="flex items-center gap-2">
-                  <UserCircle className="h-4 w-4 text-muted-foreground" />
-                  Emergency Contact Name
-                </Label>
-                {isEditing ? (
-                  <Input
-                    id="emergency_contact_name"
-                    {...profileForm.register("emergency_contact_name")}
-                    placeholder="Full name"
-                  />
-                ) : (
-                  <p className="text-sm font-medium py-2 px-3 bg-muted rounded-md">
-                    {profileForm.watch("emergency_contact_name") || "—"}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="emergency_contact_phone" className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
-                  Emergency Contact Phone
-                </Label>
-                {isEditing ? (
-                  <>
-                    <Input
-                      id="emergency_contact_phone"
-                      type="tel"
-                      {...profileForm.register("emergency_contact_phone")}
-                      placeholder="e.g. 9800000000"
-                    />
-                    {profileForm.formState.errors.emergency_contact_phone && (
-                      <p className="text-sm text-destructive">
-                        {profileForm.formState.errors.emergency_contact_phone.message}
-                      </p>
-                    )}
-                  </>
-                ) : (
-                  <p className="text-sm font-medium py-2 px-3 bg-muted rounded-md">
-                    {profileForm.watch("emergency_contact_phone") || "—"}
+                    {profileForm.watch("gender") === "M"
+                      ? "Male"
+                      : profileForm.watch("gender") === "F"
+                        ? "Female"
+                        : "—"}
                   </p>
                 )}
               </div>
@@ -527,10 +329,7 @@ export default function PatientProfile() {
                 <Button type="button" variant="outline" onClick={handleCancelEdit}>
                   Cancel
                 </Button>
-                <Button
-                  type="submit"
-                  disabled={updateProfile.isPending}
-                >
+                <Button type="submit" disabled={updateProfile.isPending}>
                   {updateProfile.isPending ? (
                     <>
                       <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
@@ -546,7 +345,6 @@ export default function PatientProfile() {
         </CardContent>
       </Card>
 
-      {/* Change Password */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -560,7 +358,9 @@ export default function PatientProfile() {
             className="space-y-6 max-w-md"
           >
             <div className="space-y-2">
-              <Label htmlFor="old_password">Current Password <span className="text-destructive">*</span></Label>
+              <Label htmlFor="old_password">
+                Current Password <span className="text-destructive">*</span>
+              </Label>
               <Input
                 id="old_password"
                 type="password"
@@ -574,7 +374,9 @@ export default function PatientProfile() {
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="new_password">New Password <span className="text-destructive">*</span></Label>
+              <Label htmlFor="new_password">
+                New Password <span className="text-destructive">*</span>
+              </Label>
               <Input
                 id="new_password"
                 type="password"
@@ -591,7 +393,9 @@ export default function PatientProfile() {
               </p>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirm_password">Confirm New Password <span className="text-destructive">*</span></Label>
+              <Label htmlFor="confirm_password">
+                Confirm New Password <span className="text-destructive">*</span>
+              </Label>
               <Input
                 id="confirm_password"
                 type="password"

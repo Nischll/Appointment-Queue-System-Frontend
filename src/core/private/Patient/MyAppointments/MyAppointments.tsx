@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useIsMobile } from "@/hooks/use-mobile.tsx";
@@ -15,27 +16,39 @@ const TABS = [
   { value: "history", label: "History", icon: History },
 ];
 
+const TAB_VALUES = TABS.map((t) => t.value);
 const DEFAULT_TAB = "book";
 
 export default function MyAppointments() {
   const isMobile = useIsMobile();
-  const [activeTab, setActiveTab] = useState<string>(DEFAULT_TAB);
-  const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const activeTab = useMemo(() => {
+    const tab = searchParams.get("tab");
+    return tab && TAB_VALUES.includes(tab) ? tab : DEFAULT_TAB;
+  }, [searchParams]);
+
+  const setActiveTab = (value: string) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.set("tab", value);
+        return next;
+      },
+      { replace: true }
+    );
+  };
 
   const handleBookingSuccess = () => {
-    setBookingSuccess(true);
     // Switch to upcoming tab after successful booking
-    setTimeout(() => {
-      setActiveTab("upcoming");
-      setBookingSuccess(false);
-    }, 1000);
+    setTimeout(() => setActiveTab("upcoming"), 1000);
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-2">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">My Appointments</h1>
+        <h1 className="text-xl font-bold tracking-tight text-foreground">My Appointments</h1>
         <p className="text-muted-foreground mt-2">
           Manage and book your appointments
         </p>
@@ -90,7 +103,7 @@ export default function MyAppointments() {
             <UpcomingAppointments />
           </TabsContent>
 
-          <TabsContent value="history" className="mt-0">
+          <TabsContent value="history" className="mt-0 w-full max-w-full min-w-0 overflow-hidden">
             <AppointmentHistory />
           </TabsContent>
         </div>
