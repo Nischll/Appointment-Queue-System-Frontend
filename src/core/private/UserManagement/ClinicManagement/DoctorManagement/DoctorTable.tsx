@@ -54,6 +54,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import Table, { Column } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card.tsx";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 import { ChevronRight } from "lucide-react";
 
 type Props = {
@@ -65,6 +66,7 @@ const DoctorTable = ({ departmentId }: Props) => {
     const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
     const [mode, setMode] = useState<"add" | "edit">("add");
     const [openShift, setOpenShift] = useState(false);
+    const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
     const { data, refetch, isLoading } = useGetDoctor(departmentId);
     const doctors: Doctor[] = data?.data || [];
@@ -75,7 +77,7 @@ const DoctorTable = ({ departmentId }: Props) => {
 
     const addDoctor = useAddDoctor();
     const updateDoctor = useUpdateDoctor(selectedDoctor?.id);
-    const deleteDoctor = useDeleteDoctor(selectedDoctor?.id);
+    const deleteDoctor = useDeleteDoctor(selectedDoctor?.id, selectedDoctor?.department_id);
 
     const form = useForm<Doctor>({
         defaultValues: {
@@ -118,14 +120,18 @@ const DoctorTable = ({ departmentId }: Props) => {
 
     const handleDeleteDoctor = (doctor: Doctor) => {
         setSelectedDoctor(doctor);
-        if (doctor.id) {
-            deleteDoctor.mutate(doctor.id, {
-                onSuccess: () => {
-                    setSelectedDoctor(null);
-                    refetch();
-                },
-            });
-        }
+        setDeleteConfirmOpen(true);
+    };
+
+    const confirmDeleteDoctor = () => {
+        if (!selectedDoctor?.id || selectedDoctor?.department_id == null) return;
+        deleteDoctor.mutate(undefined, {
+            onSuccess: () => {
+                setSelectedDoctor(null);
+                setDeleteConfirmOpen(false);
+                refetch();
+            },
+        });
     };
 
     const onSubmit = (values: Doctor) => {
@@ -375,6 +381,7 @@ const DoctorTable = ({ departmentId }: Props) => {
                         searchable={false}
                         pagination={true}
                         emptyText="No doctors found"
+                        fitToViewport={true}
                     />
                 </div>
             ) : (
@@ -553,11 +560,29 @@ const DoctorTable = ({ departmentId }: Props) => {
                     }}
                     doctor={selectedDoctor}
                     onSuccess={() => {
-                        // Refetch doctor data after shift allocation/update
                         refetch();
                     }}
                 />
             )}
+
+            {/* Delete confirmation */}
+            <ConfirmModal
+                open={deleteConfirmOpen}
+                title="Delete doctor"
+                description={
+                    selectedDoctor ? (
+                        <>Are you sure you want to delete <strong>{selectedDoctor.name}</strong>? This action cannot be undone.</>
+                    ) : null
+                }
+                onClose={() => {
+                    setDeleteConfirmOpen(false);
+                    setSelectedDoctor(null);
+                }}
+                onConfirm={confirmDeleteDoctor}
+                confirmText="Delete"
+                confirmLoading={deleteDoctor.isPending}
+                actionType="delete"
+            />
         </div>
     );
 };

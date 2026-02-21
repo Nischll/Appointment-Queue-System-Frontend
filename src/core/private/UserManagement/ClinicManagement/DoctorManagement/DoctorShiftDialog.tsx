@@ -44,6 +44,7 @@ const to24Hour = (time?: string | null): string => {
 };
 
 type ApiDoctorShift = {
+    id?: number;
     day_of_week: number;
     start_time: string | null;
     end_time: string | null;
@@ -51,6 +52,7 @@ type ApiDoctorShift = {
 };
 
 type Shift = {
+    id?: number; // required when updating; omit for new shifts
     start_time: string;
     end_time: string;
     is_day_off: boolean;
@@ -62,15 +64,15 @@ type DayShift = {
 };
 
 /* ---------- CONSTANTS ---------- */
-
+// Backend: day_of_week 0 = Sunday, 6 = Saturday
 const DAYS = [
+    { id: 0, label: "Sunday" },
     { id: 1, label: "Monday" },
     { id: 2, label: "Tuesday" },
     { id: 3, label: "Wednesday" },
     { id: 4, label: "Thursday" },
     { id: 5, label: "Friday" },
     { id: 6, label: "Saturday" },
-    { id: 7 , label: "Sunday" },
 ];
 
 /* ---------- COMPONENT ---------- */
@@ -142,6 +144,7 @@ const DoctorShiftDialog = ({
             } else {
                 shiftsForDay.forEach((s) => {
                     day.shifts.push({
+                        id: s.id,
                         start_time: to24Hour(s.start_time),
                         end_time: to24Hour(s.end_time),
                         is_day_off: s.is_day_off,
@@ -163,12 +166,14 @@ const DoctorShiftDialog = ({
 
                 const isCurrentlyDayOff = d.shifts[0]?.is_day_off;
 
-                // 🔁 Reverse: Day Off → Working day
+                // 🔁 Reverse: Day Off → Working day (keep id if existed)
                 if (isCurrentlyDayOff) {
+                    const existingId = d.shifts[0]?.id;
                     return {
                         ...d,
                         shifts: [
                             {
+                                ...(existingId != null ? { id: existingId } : {}),
                                 start_time: "",
                                 end_time: "",
                                 is_day_off: false,
@@ -177,11 +182,13 @@ const DoctorShiftDialog = ({
                     };
                 }
 
-                // 🚫 Working day → Day Off
+                // 🚫 Working day → Day Off (keep id if existed)
+                const existingId = d.shifts[0]?.id;
                 return {
                     ...d,
                     shifts: [
                         {
+                            ...(existingId != null ? { id: existingId } : {}),
                             start_time: "",
                             end_time: "",
                             is_day_off: true,
@@ -200,11 +207,7 @@ const DoctorShiftDialog = ({
                         ...d,
                         shifts: [
                             ...d.shifts,
-                            {
-                                start_time: "",
-                                end_time: "",
-                                is_day_off: false,
-                            },
+                            { start_time: "", end_time: "", is_day_off: false },
                         ],
                     }
                     : d
@@ -256,16 +259,18 @@ const DoctorShiftDialog = ({
                     if (!s.start_time || !s.end_time) return false;
                     return true;
                 })
-                .map((s) => ({
-                    day_of_week: d.day_of_week,
-                    is_day_off: s.is_day_off,
-                    start_time: s.is_day_off
-                        ? undefined
-                        : toAmPm(s.start_time),
-                    end_time: s.is_day_off
-                        ? undefined
-                        : toAmPm(s.end_time),
-                }))
+                .map((s) => {
+                    const base: { id?: number; day_of_week: number; is_day_off: boolean; start_time?: string; end_time?: string } = {
+                        day_of_week: d.day_of_week,
+                        is_day_off: s.is_day_off,
+                    };
+                    if (s.id != null) base.id = s.id;
+                    if (!s.is_day_off) {
+                        base.start_time = toAmPm(s.start_time);
+                        base.end_time = toAmPm(s.end_time);
+                    }
+                    return base;
+                })
         );
 
         if (shifts.length === 0) {
@@ -275,11 +280,11 @@ const DoctorShiftDialog = ({
 
         saveShift.mutate(
             { shifts },
-            { 
+            {
                 onSuccess: () => {
-                    onSuccess?.(); // Trigger refetch in parent component
+                    onSuccess?.();
                     onClose();
-                }
+                },
             }
         );
     };

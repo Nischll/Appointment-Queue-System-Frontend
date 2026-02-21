@@ -67,7 +67,7 @@ const PatientTable = () => {
     <div className="space-y-2">
       <div className="flex justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">
+          <h1 className="text-xl font-bold text-foreground">
             Patient Management
           </h1>
           <p className="text-muted-foreground mt-2">

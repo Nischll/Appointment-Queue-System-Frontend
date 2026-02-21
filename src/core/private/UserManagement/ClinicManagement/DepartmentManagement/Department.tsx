@@ -33,6 +33,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu.tsx";
 import { Card, CardContent } from "@/components/ui/card.tsx";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 import { cn } from "@/lib/utils";
 import { Layers, MoreVertical, Plus, Edit2, Trash2 } from "lucide-react";
 
@@ -55,13 +56,15 @@ const Department = ({ clinicId, onSelectDepartment }: DepartmentProps) => {
     const [open, setOpen] = useState(false);
     const [selected, setSelected] = useState<Department | null>(null);
     const [activeDepartmentId, setActiveDepartmentId] = useState<number | null>(null);
+    const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+    const [departmentToDelete, setDepartmentToDelete] = useState<Department | null>(null);
 
     const { data, refetch, isLoading } = useGetDepartment(clinicId) as any;
     const departments: Department[] = data?.data || [];
 
     const addDepartment = useAddDepartment();
     const updateDepartment = useUpdateDepartment(selected?.id);
-    const deleteDepartment = useDeleteDepartment(selected?.id);
+    const deleteDepartment = useDeleteDepartment(departmentToDelete?.id);
 
     const form = useForm<Department>({
         defaultValues: {
@@ -118,6 +121,21 @@ const Department = ({ clinicId, onSelectDepartment }: DepartmentProps) => {
             onSuccess: () => {
                 setOpen(false);
                 setSelected(null);
+                refetch();
+            },
+        });
+    };
+
+    const confirmDeleteDepartment = () => {
+        if (!departmentToDelete?.id) return;
+        deleteDepartment.mutate(undefined, {
+            onSuccess: () => {
+                if (activeDepartmentId === departmentToDelete.id) {
+                    setActiveDepartmentId(null);
+                    onSelectDepartment(null);
+                }
+                setDeleteConfirmOpen(false);
+                setDepartmentToDelete(null);
                 refetch();
             },
         });
@@ -215,17 +233,8 @@ const Department = ({ clinicId, onSelectDepartment }: DepartmentProps) => {
                                                 className="text-red-600 focus:text-red-600"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    if (dept.id) {
-                                                        deleteDepartment.mutate(dept.id, {
-                                                            onSuccess: () => {
-                                                                if (activeDepartmentId === dept.id) {
-                                                                    setActiveDepartmentId(null);
-                                                                    onSelectDepartment(null);
-                                                                }
-                                                                refetch();
-                                                            },
-                                                        });
-                                                    }
+                                                    setDepartmentToDelete(dept);
+                                                    setDeleteConfirmOpen(true);
                                                 }}
                                             >
                                                 <Trash2 className="h-4 w-4 mr-2" />
@@ -374,6 +383,24 @@ const Department = ({ clinicId, onSelectDepartment }: DepartmentProps) => {
                     </Form>
                 </DialogContent>
             </Dialog>
+
+            <ConfirmModal
+                open={deleteConfirmOpen}
+                title="Delete department"
+                description={
+                    departmentToDelete ? (
+                        <>Are you sure you want to delete <strong>{departmentToDelete.name}</strong>? This action cannot be undone.</>
+                    ) : null
+                }
+                onClose={() => {
+                    setDeleteConfirmOpen(false);
+                    setDepartmentToDelete(null);
+                }}
+                onConfirm={confirmDeleteDepartment}
+                confirmText="Delete"
+                confirmLoading={deleteDepartment.isPending}
+                actionType="delete"
+            />
         </div>
     );
 };

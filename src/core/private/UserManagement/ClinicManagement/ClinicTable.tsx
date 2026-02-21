@@ -30,6 +30,7 @@ import {
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu.tsx";
 import { Card, CardContent } from "@/components/ui/card.tsx";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 import { cn } from "@/lib/utils";
 import { Building2, MapPin, MoreVertical, Phone, Edit2, Trash2, Plus } from "lucide-react";
 import { Clinic } from "./clinicType";
@@ -48,6 +49,7 @@ const ClinicTable = () => {
     const clinics: Clinic[] = data?.data || [];
 
     const [activeClinicId, setActiveClinicId] = useState<number | string | null>(null);
+    const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
 
     const addClinic = useAddClinic();
@@ -83,9 +85,19 @@ const ClinicTable = () => {
     };
 
     const handleDeleteClinic = (clinic: Clinic) => {
-        if (!clinic.id) return;
-        setSelectedClinic(clinic)
-        deleteClinic.mutate(clinic.id, { onSuccess: () => refetch });
+        setSelectedClinic(clinic);
+        setDeleteConfirmOpen(true);
+    };
+
+    const confirmDeleteClinic = () => {
+        if (!selectedClinic?.id) return;
+        deleteClinic.mutate(undefined, {
+            onSuccess: () => {
+                setDeleteConfirmOpen(false);
+                setSelectedClinic(null);
+                refetch();
+            },
+        });
     };
     const handleClinicClick = (clinic: Clinic) => {
         setActiveClinicId(clinic.id ?? null);
@@ -342,6 +354,24 @@ const ClinicTable = () => {
                     </Form>
                 </DialogContent>
             </Dialog>
+
+            <ConfirmModal
+                open={deleteConfirmOpen}
+                title="Delete clinic"
+                description={
+                    selectedClinic ? (
+                        <>Are you sure you want to delete <strong>{selectedClinic.name}</strong>? This action cannot be undone.</>
+                    ) : null
+                }
+                onClose={() => {
+                    setDeleteConfirmOpen(false);
+                    setSelectedClinic(null);
+                }}
+                onConfirm={confirmDeleteClinic}
+                confirmText="Delete"
+                confirmLoading={deleteClinic.isPending}
+                actionType="delete"
+            />
         </div>
     );
 };

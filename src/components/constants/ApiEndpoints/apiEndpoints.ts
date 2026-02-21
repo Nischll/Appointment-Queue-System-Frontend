@@ -64,21 +64,21 @@ export const API_ENDPOINTS = {
     CLINIC :{
       GET_CLINIC:"api/clinics/",
         ADD_CLINIC:"api/clinics/",
-        DELETE_CLINIC:(id:string|number|undefined)=>`api/clinics/delete/${id}`,
+        DELETE_CLINIC:(id:string|number|undefined)=>`api/clinics/${id}`,
         GET_CLINIC_BY_ID:(id:string|number|undefined)=>`api/clinics/${id}`,
         UPDATE_CLINIC:  (id:string|number|undefined)=>`api/clinics/${id}`,
     },
     DOCTOR :{
         GET_DOCTOR:"api/doctor/",
         ADD_DOCTOR:"api/doctor/",
-        DELETE_DOCTOR:(id:string|number|undefined)=>`api/doctor/delete/${id}`,
+        DELETE_DOCTOR:(doctorId:string|number|undefined, departmentId:string|number|undefined)=>`api/doctor/${doctorId}/${departmentId}`,
         GET_DOCTOR_BY_ID:(id:string|number|undefined)=>`api/doctor/${id}`,
         UPDATE_DOCTOR:  (id:string|number|undefined,)=>`api/doctor/${id}`,
     },
     DEPARTMENT :{
         GET_DEPARTMENT:"api/departments",
         ADD_DEPARTMENT:"api/departments",
-        DELETE_DEPARTMENT:(id:string|number|undefined)=>`api/departments/delete/${id}`,
+        DELETE_DEPARTMENT:(id:string|number|undefined)=>`api/departments/${id}`,
         GET_DEPARTMENT_BY_ID:(id:string|number|undefined)=>`api/departments/${id}`,
         UPDATE_DEPARTMENT:  (departmentId:string|number|undefined)=>`api/departments/${departmentId}`,
     },
@@ -107,19 +107,20 @@ export const API_ENDPOINTS = {
         ADD_DOCTOR_SHIFT:(doctorId:string|number|undefined,departmentId:string|number|undefined)=>`/api/doctor-shifts/${doctorId}/${departmentId}`,
 
     },
-APPOINTMENT:{
-        GET_LIVE_APPOINTMENT:`/api/appointments/live`,
-        ADD_APPOINTMENT:`/api/appointments/book`,
-    CHECK_IN:(id:number|undefined|string)=>`/api/appointments/check-in/${id}`,
-    START:(id:number|undefined|string)=>`/api/appointments/start/${id}`,
-    COMPLETE:(id:number|undefined|string)=>`/api/appointments/complete/${id}`,
-    CANCEL:(id:number|undefined|string)=>`/api/appointments/cancel/${id}`,
-    NO_SHOWN:(id:number|undefined|string)=>`/api/appointments/no-show/${id}`,
-    UPDATE:(id:number|undefined|string)=>`/api/appointments/update/${id}`,
-    GET_HISTORY:`api/appointments/history`,
-    FOLLOW_UP:(id:number|undefined|string)=>`/api/appointments/follow-up/${id}`,
-    RESCHEDULE:(id:number|undefined|string)=>`/api/appointments/reschedule/${id}`,
-
-
-    }
+APPOINTMENT: {
+    BOOK: "api/appointments/book",
+    UPDATE: (id: string | number | undefined) => `api/appointments/update/${id}`,
+    APPROVE: (id: string | number | undefined) => `api/appointments/approve/${id}`,
+    REJECT: (id: string | number | undefined) => `api/appointments/reject/${id}`,
+    RESCHEDULE: (id: string | number | undefined) => `api/appointments/reschedule/${id}`,
+    FOLLOW_UP: (id: string | number | undefined) => `api/appointments/follow-up/${id}`,
+    CHECK_IN: (id: string | number | undefined) => `api/appointments/check-in/${id}`,
+    START: (id: string | number | undefined) => `api/appointments/start/${id}`,
+    COMPLETE: (id: string | number | undefined) => `api/appointments/complete/${id}`,
+    CANCEL: (id: string | number | undefined) => `api/appointments/cancel/${id}`,
+    NO_SHOW: (id: string | number | undefined) => `api/appointments/no-show/${id}`,
+    LIVE: "api/appointments/live",
+    UPCOMING: "api/appointments/upcoming",
+    HISTORY: "api/appointments/history",
+  },
 };

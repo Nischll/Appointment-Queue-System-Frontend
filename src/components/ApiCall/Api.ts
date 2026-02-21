@@ -8,6 +8,7 @@ import {Patient} from "@/core/private/PatientMangement/type.ts";
 import { Clinic, Doctor } from "@/core/private/Patient/MyAppointments/appointmentTypes";
 import { PatientProfileResponse } from "@/core/private/Patient/Profile/profileTypes";
 import { StaffProfileResponse } from "@/core/private/Profile/staffProfileTypes";
+import { AppointmentTypeEnum } from "@/enums/AppointmentEnum";
 
 export type ApiListResponse<T> = {
     statusCode: number;
@@ -85,8 +86,8 @@ export const useUpdateDoctor = (id: string | number | undefined,) =>
     useApiMutation("put", API_ENDPOINTS.DOCTOR.UPDATE_DOCTOR(id))
 export const useGetDoctorById = (id: string | number | undefined) =>
     useApiGet(API_ENDPOINTS.DOCTOR.GET_DOCTOR_BY_ID(id))
-export const useDeleteDoctor = (id: string | number | undefined) =>
-    useApiMutation("delete", API_ENDPOINTS.DOCTOR.DELETE_DOCTOR(id))
+export const useDeleteDoctor = (doctorId: string | number | undefined, departmentId: string | number | undefined) =>
+    useApiMutation("delete", API_ENDPOINTS.DOCTOR.DELETE_DOCTOR(doctorId, departmentId))
 
 export const useAddDepartment = () =>
     useApiMutation("post", API_ENDPOINTS.DEPARTMENT.ADD_DEPARTMENT);
@@ -130,85 +131,126 @@ export const useGetDoctorShift = (doctorId: string | number | undefined, departm
     })
 export const useSaveDoctorShift = (doctorId: string | number | undefined, departmentId: string | undefined | number) =>
     useApiMutation("put", API_ENDPOINTS.DOCTOR_SHIFT.ADD_DOCTOR_SHIFT(doctorId, departmentId))
-// ADD / BOOK appointment
-export const useAddAppointment = () =>
-    useApiMutation("post", API_ENDPOINTS.APPOINTMENT.ADD_APPOINTMENT);
+// Book appointment (POST)
+export const useBookAppointment = () =>
+    useApiMutation("post", API_ENDPOINTS.APPOINTMENT.BOOK);
+export const useAddAppointment = () => useBookAppointment();
 
-// GET live appointments
+// Update appointment (PUT)
+export const useUpdateAppointment = (id: string | number | undefined) =>
+    useApiMutation("put", API_ENDPOINTS.APPOINTMENT.UPDATE(id));
+
+// Approve / Reject / Reschedule / Follow-up (PUT with body)
+export const useApproveAppointment = (id: string | number | undefined) =>
+    useApiMutation("put", API_ENDPOINTS.APPOINTMENT.APPROVE(id));
+export const useRejectAppointment = (id: string | number | undefined) =>
+    useApiMutation("put", API_ENDPOINTS.APPOINTMENT.REJECT(id));
+export const useRescheduleAppointment = (id: string | number | undefined) =>
+    useApiMutation("put", API_ENDPOINTS.APPOINTMENT.RESCHEDULE(id));
+export const useFollowUpAppointment = (id: string | number | undefined) =>
+    useApiMutation("post", API_ENDPOINTS.APPOINTMENT.FOLLOW_UP(id));
+
+// Check-in, Start, Complete, Cancel, No-show (PUT, no body)
+export const useCheckInAppointment = (id: string | number | undefined) =>
+    useApiMutation("put", API_ENDPOINTS.APPOINTMENT.CHECK_IN(id));
+export const useStartAppointment = (id: string | number | undefined) =>
+    useApiMutation("put", API_ENDPOINTS.APPOINTMENT.START(id));
+export const useCompleteAppointment = (id: string | number | undefined) =>
+    useApiMutation("put", API_ENDPOINTS.APPOINTMENT.COMPLETE(id));
+export const useCancelAppointment = (id: string | number | undefined) =>
+    useApiMutation("put", API_ENDPOINTS.APPOINTMENT.CANCEL(id));
+export const useNoShowAppointment = (id: string | number | undefined) =>
+    useApiMutation("put", API_ENDPOINTS.APPOINTMENT.NO_SHOW(id));
+
+// GET live appointments (queue + waiting time). Set enabled only after applying filters.
 export const useGetLiveAppointments = (
     clinic_id?: string | number,
     department_id?: string | number,
-    doctor_id?: string | number
+    doctor_id?: string | number,
+    enabled?: boolean
 ) =>
-    useApiGet(API_ENDPOINTS.APPOINTMENT.GET_LIVE_APPOINTMENT, {
+    useApiGet<ApiListResponse<any>>(API_ENDPOINTS.APPOINTMENT.LIVE, {
         queryParams: {
-            clinic_id: clinic_id,
-            department_id: department_id,
+            clinic_id: clinic_id ?? "",
+            department_id: department_id ?? "",
             doctor_id: doctor_id ?? "",
         },
-        enabled: !!clinic_id,
+        enabled: enabled === true,
     });
 
+// Upcoming API only allows status: REQUESTED | BOOKED | REJECTED. Omit status when empty or invalid.
+const UPCOMING_ALLOWED_STATUSES = ["REQUESTED", "BOOKED", "REJECTED"] as const;
 
-// GET appointment history
-// Api.ts
+// GET upcoming appointments (paginated, filters). Set enabled only after applying filters.
+export const useGetUpcomingAppointments = (params: {
+    date_from?: string;
+    date_to?: string;
+    status?: string;
+    clinic_id?: string | number;
+    department_id?: string | number;
+    doctor_id?: string | number;
+    appointment_type?: string;
+    patient_name?: string;
+    page?: number;
+    limit?: number;
+    enabled?: boolean;
+}) => {
+    const validStatus =
+        params.status && UPCOMING_ALLOWED_STATUSES.includes(params.status as any)
+            ? params.status
+            : undefined;
+    const validAppointmentType =
+        params.appointment_type &&
+        Object.values(AppointmentTypeEnum).includes(params.appointment_type as any)
+            ? params.appointment_type
+            : undefined;
+    return useApiGet<ApiPaginatedResponse<any>>(API_ENDPOINTS.APPOINTMENT.UPCOMING, {
+        queryParams: {
+            date_from: params.date_from ?? "",
+            date_to: params.date_to ?? "",
+            ...(validStatus != null ? { status: validStatus } : {}),
+            clinic_id: params.clinic_id ?? "",
+            department_id: params.department_id ?? "",
+            doctor_id: params.doctor_id ?? "",
+            ...(validAppointmentType != null ? { appointment_type: validAppointmentType } : {}),
+            patient_name: params.patient_name ?? "",
+            page: params.page ?? 1,
+            limit: params.limit ?? 10,
+        },
+        enabled: params.enabled === true,
+    });
+};
+
+// GET appointment history (paginated, filters). Set enabled only after applying filters.
 export const useGetAppointmentHistory = (
     date_from?: string,
     date_to?: string,
     clinic_id?: string | number,
     department_id?: string | number,
     doctor_id?: string | number,
-    appointment_type?: string | undefined,
-    patient_name?: string | undefined,
+    appointment_type?: string,
+    patient_name?: string,
     status?: string,
     page?: number,
     limit?: number,
+    enabled?: boolean
 ) =>
-    useApiGet(API_ENDPOINTS.APPOINTMENT.GET_HISTORY, {
+    useApiGet<ApiPaginatedResponse<any>>(API_ENDPOINTS.APPOINTMENT.HISTORY, {
         queryParams: {
-            date_from: date_from,
-            date_to: date_to,
-            clinic_id: clinic_id,
-            department_id: department_id,
-            doctor_id: doctor_id,
-            appointment_type: appointment_type,
-            patient_name: patient_name,
-            status: status,
-            page: page??1,
-            limit: limit??10
+            date_from: date_from ?? "",
+            date_to: date_to ?? "",
+            clinic_id: clinic_id ?? "",
+            department_id: department_id ?? "",
+            doctor_id: doctor_id ?? "",
+            appointment_type: appointment_type ?? "",
+            patient_name: patient_name ?? "",
+            status: status ?? "",
+            page: page ?? 1,
+            limit: limit ?? 10,
         },
         retry: 0,
-        enabled: !!date_to && !!date_from
+        enabled: enabled === true,
     });
-
-
-// CHECK-IN appointment
-export const useCheckInAppointment = (id: string | number | undefined) =>
-    useApiMutation("put", API_ENDPOINTS.APPOINTMENT.CHECK_IN(id));
-
-// START appointment
-export const useStartAppointment = (id: string | number | undefined) =>
-    useApiMutation("put", API_ENDPOINTS.APPOINTMENT.START(id));
-
-// COMPLETE appointment
-export const useCompleteAppointment = (id: string | number | undefined) =>
-    useApiMutation("put", API_ENDPOINTS.APPOINTMENT.COMPLETE(id));
-
-// CANCEL appointment
-export const useCancelAppointment = (id: string | number | undefined) =>
-    useApiMutation("post", API_ENDPOINTS.APPOINTMENT.CANCEL(id));
-
-// NO-SHOW appointment
-export const useNoShowAppointment = (id: string | number | undefined) =>
-    useApiMutation("post", API_ENDPOINTS.APPOINTMENT.NO_SHOWN(id));
-
-// UPDATE appointment
-export const useUpdateAppointment = (id: string | number | undefined) =>
-    useApiMutation("put", API_ENDPOINTS.APPOINTMENT.UPDATE(id));
-export const useFollowUpAppointment = (id: string | number | undefined) =>
-    useApiMutation("post", API_ENDPOINTS.APPOINTMENT.FOLLOW_UP(id));
-export const useRescheduleAppointment = (id: string | number | undefined) =>
-    useApiMutation("put", API_ENDPOINTS.APPOINTMENT.RESCHEDULE(id));
 
 // Patient Appointment Hooks
 export const useGetPatientClinics = () =>

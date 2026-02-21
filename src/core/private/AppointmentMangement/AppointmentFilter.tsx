@@ -7,33 +7,38 @@ import {
 } from "@/components/ApiCall/Api";
 import { Label } from "@/components/ui/label";
 
+/**
+ * Cascading filter: only Clinic API on load.
+ * Department API runs only after user selects a clinic.
+ * Doctor API runs only after user selects a department.
+ */
 const AppointmentFilter = () => {
     const { register, control, setValue } = useFormContext();
 
     const clinicId = useWatch({ control, name: "clinicId" });
     const departmentId = useWatch({ control, name: "departmentId" });
 
+    // Clinic: always fetched on mount
     const { data: clinicData } = useGetClinic();
+    // Department: only when clinic is selected
     const { data: departmentData } = useGetDepartment(clinicId);
+    // Doctor: only when department is selected
     const { data: doctorData } = useGetDoctor(departmentId);
 
-    /** ✅ Auto-select first clinic */
+    // Clear department and doctor whenever clinic selection changes
     useEffect(() => {
-        if (!clinicId && clinicData?.data?.length) {
-            setValue("clinicId", clinicData.data[0].id);
-        }
-    }, [clinicData, clinicId, setValue]);
+        setValue("departmentId", "");
+        setValue("doctorId", "");
+    }, [clinicId, setValue]);
 
-    /** ✅ Auto-select first department after clinic is selected */
+    // Clear doctor whenever department selection changes
     useEffect(() => {
-        if (clinicId && !departmentId && departmentData?.data?.length) {
-            setValue("departmentId", departmentData.data[0].id);
-        }
-    }, [clinicId, departmentData, departmentId, setValue]);
+        setValue("doctorId", "");
+    }, [departmentId, setValue]);
 
     return (
         <>
-            {/* Clinic */}
+            {/* Clinic — fetched on load */}
             <div>
                 <Label>Clinic</Label>
                 <select
@@ -49,7 +54,7 @@ const AppointmentFilter = () => {
                 </select>
             </div>
 
-            {/* Department */}
+            {/* Department — fetched only after clinic selected */}
             <div>
                 <Label>Department</Label>
                 <select
@@ -66,7 +71,7 @@ const AppointmentFilter = () => {
                 </select>
             </div>
 
-            {/* Doctor (NO auto-select as requested) */}
+            {/* Doctor — fetched only after department selected */}
             <div>
                 <Label>Doctor</Label>
                 <select
