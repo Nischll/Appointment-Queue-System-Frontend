@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import {
     Card,
@@ -20,8 +20,7 @@ import {
 } from "@/components/ApiCall/Api";
 import { AppointmentTypeEnum } from "@/enums/AppointmentEnum";
 import { NiceSelect } from "@/components/ui/NiceSelect";
-import {useNavigate} from "react-router-dom";
-import {PatientModal} from "@/core/private/PatientMangement/PatientModal.tsx";
+import { useNavigate, useLocation } from "react-router-dom";
 
 type AppointmentFormValues = {
     patient_id: number;
@@ -44,8 +43,15 @@ const AddAppointment = () => {
         },
     });
 const navigate = useNavigate();
+    const location = useLocation();
     const { watch, setValue, handleSubmit } = form;
-const[open,setOpen]=useState(false);
+    const newPatientIdFromState = (location.state as { newPatientId?: number })?.newPatientId;
+    useEffect(() => {
+        if (newPatientIdFromState != null) {
+            setSelectedPatientId(newPatientIdFromState);
+            setValue("patient_id", newPatientIdFromState);
+        }
+    }, [newPatientIdFromState, setValue]);
     const clinicId = watch("clinic_id");
     const departmentId = watch("department_id");
 
@@ -108,7 +114,18 @@ console.log("apointid",selectedPatientId);
                            }}
                        />
                    </div>
-                   <Button className={"mt-6"} onClick={()=>setOpen(true)}>Add New Patient</Button>
+                   <Button
+                        className={"mt-6"}
+                        type="button"
+                        variant="outline"
+                        onClick={() =>
+                            navigate("/patient-management/add", {
+                                state: { returnTo: "/appointment-management/book-appointment" },
+                            })
+                        }
+                    >
+                        Add New Patient
+                    </Button>
 
                </div>
 
@@ -260,22 +277,6 @@ console.log("apointid",selectedPatientId);
                </Card>
 
            </div>
-           <PatientModal
-               open={open}
-               mode="add"
-               onClose={() => setOpen(false)}
-               onSuccess={(newPatientId) => {
-                   if (!newPatientId) return;
-
-                   // 1️⃣ Refetch patient list
-                   refetchPateient();
-
-                   // 2️⃣ Auto-select patient
-                   setSelectedPatientId(newPatientId);
-                   setValue("patient_id", newPatientId);
-               }}
-           />
-
        </>
     );
 };

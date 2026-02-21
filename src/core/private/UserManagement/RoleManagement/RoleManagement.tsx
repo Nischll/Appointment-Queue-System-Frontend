@@ -108,7 +108,7 @@ const RoleManagement = () => {
     <div className="space-y-2">
       <div className="flex justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Role Management</h1>
+          <h1 className="text-xl font-bold">Role Management</h1>
           <p className="text-muted-foreground mt-2">
             Create and manage user roles
           </p>

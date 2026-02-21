@@ -88,7 +88,6 @@ const optionalAge = z
   .refine(
     (v) =>
       v === undefined ||
-      v === null ||
       (typeof v === "number" && !isNaN(v) && v >= 1 && v <= 150),
     { message: "Age must be between 1 and 150." }
   );
@@ -158,3 +157,58 @@ export const staffProfileUpdateSchema = z.object({
   phone: z.union([zod_phoneNumber(), z.literal("")]),
   gender: z.enum(["M", "F"]).nullable().optional(),
 });
+
+const addPatientDobAgeRefine = (
+  data: { dob?: string | null; age?: unknown },
+) => {
+  const hasDob = data.dob != null && String(data.dob).trim() !== "";
+  const numAge = data.age;
+  const hasAge =
+    numAge != null &&
+    numAge !== "" &&
+    !isNaN(Number(numAge)) &&
+    Number(numAge) >= 1 &&
+    Number(numAge) <= 150;
+  return hasDob || hasAge;
+};
+
+const addPatientObjectSchema = z.object({
+  full_name: zod_fullName(),
+  username: zod_username(),
+  email: zod_email(),
+  password: zod_password(),
+  phone: zod_phoneNumber(),
+  gender: z.enum(["M", "F"], { required_error: "Gender is required." }),
+  dob: optionalDob,
+  age: optionalAge,
+  address: z.string().max(200).optional().nullable(),
+  blood_group: z
+    .enum(["Ap", "An", "Bp", "Bn", "Op", "On", "ABp", "ABn"])
+    .optional()
+    .nullable(),
+  emergency_contact_name: z.string().max(100).optional().nullable(),
+  emergency_contact_phone: z
+    .string()
+    .refine((v) => !v || v === "" || /^9\d{9}$/.test(v), {
+      message: "Must be a valid 10-digit Nepalese number when provided.",
+    })
+    .optional()
+    .nullable(),
+});
+
+/** Add patient (admin): at least one of dob or age required */
+export const addPatientSchema = addPatientObjectSchema.refine(
+  addPatientDobAgeRefine,
+  {
+    message: "Provide either Date of Birth or Age.",
+    path: ["dob"],
+  },
+);
+
+/** Edit patient: same as add but no password */
+export const editPatientSchema = addPatientObjectSchema
+  .omit({ password: true })
+  .refine(addPatientDobAgeRefine, {
+    message: "Provide either Date of Birth or Age.",
+    path: ["dob"],
+  });

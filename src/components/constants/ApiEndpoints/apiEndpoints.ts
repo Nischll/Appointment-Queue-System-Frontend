@@ -85,7 +85,9 @@ export const API_ENDPOINTS = {
     PATIENT :{
         GET_PATIENT:"api/patient",
         ADD_PATIENT:"api/patient",
-        DELETE_PATIENT:(id:string|number|undefined)=>`api/patient/${id}`,
+        DELETE_PATIENT: (id: string | number | undefined) => `api/patient/${id}`,
+        /** Base path for delete when id is passed in mutate payload */
+        DELETE_PATIENT_BASE: "api/patient",
         GET_PATIENT_BY_ID:(id:string|number|undefined)=>`api/patient/${id}`,
         UPDATE_PATIENT:  (id:string|number|undefined)=>`api/patient/${id}`,
         // Patient Appointment Endpoints

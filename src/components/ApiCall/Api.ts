@@ -111,15 +111,18 @@ export const useGetPatient = () =>
     useApiGet<ApiListResponse<Patient>>(API_ENDPOINTS.PATIENT.GET_PATIENT);
 
 export const useGetPatientById = (id: string | number | undefined) =>
-    useApiGet(API_ENDPOINTS.PATIENT.GET_PATIENT_BY_ID(id), {
+    useApiGet<ApiSingleResponse<Patient>>(API_ENDPOINTS.PATIENT.GET_PATIENT_BY_ID(id), {
         enabled: !!id
     });
 
 export const useUpdatePatient = (id: string | number | undefined) =>
     useApiMutation("put", API_ENDPOINTS.PATIENT.UPDATE_PATIENT(id));
 
-export const useDeletePatient = (id: string | number | undefined) =>
-    useApiMutation("delete", API_ENDPOINTS.PATIENT.DELETE_PATIENT(id));
+export const useDeletePatient = (id?: string | number | undefined) =>
+    useApiMutation(
+        "delete",
+        id != null ? API_ENDPOINTS.PATIENT.DELETE_PATIENT(id) : API_ENDPOINTS.PATIENT.DELETE_PATIENT_BASE,
+    );
 export const useGetDoctorShift = (doctorId: string | number | undefined, departmentId: string | undefined | number) =>
     useApiGet(API_ENDPOINTS.DOCTOR_SHIFT.GET_DOCTOR_SHIFT(doctorId, departmentId),{
         retry:0,

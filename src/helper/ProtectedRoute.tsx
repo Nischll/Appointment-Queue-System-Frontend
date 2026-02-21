@@ -24,10 +24,8 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }
 
   const frontendAllowedPaths = [
-    "dashboard-details/:type",
+    "patient-management/add",
     "permission/:id",
-    "history/:id",
-    "refund/:id",
   ];
 
   // ✅ Move this ABOVE all returns

@@ -15,6 +15,8 @@ const UserTable = lazy(() => import("../core/private/UserManagement/StaffManagem
 const RoleManagement = lazy(() => import("../core/private/UserManagement/RoleManagement/RoleManagement"));
 const ClinicManagement = lazy(() => import("@/core/private/UserManagement/ClinicManagement/ClinicTable.tsx"));
 const PatientManagement = lazy(() => import("@/core/private/PatientMangement/PatientTable.tsx"));
+const AddPatient = lazy(() => import("@/core/private/PatientMangement/AddPatient.tsx"));
+const EditPatient = lazy(() => import("@/core/private/PatientMangement/EditPatient.tsx"));
 const PermissionsTable = lazy(() => import("../core/private/UserManagement/RoleManagement/PermissionTable/PermissionTable.tsx"));
 const Appointment=lazy(()=>import("../core/private/AppointmentMangement/AppointmentTabs.tsx"))
 
@@ -74,8 +76,16 @@ export const privateRoutes: RouteObject[] = [
         },
 
         {
-            path:"patient-management",
-            element:<PatientManagement />
+            path: "patient-management",
+            element: <PatientManagement />
+        },
+        {
+            path: "patient-management/add",
+            element: <AddPatient />
+        },
+        {
+            path: "patient-management/edit/:id",
+            element: <EditPatient />
         },
         {
             path:"appointment-management",
