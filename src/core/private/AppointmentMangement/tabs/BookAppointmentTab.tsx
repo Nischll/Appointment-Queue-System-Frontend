@@ -23,10 +23,10 @@ import { Textarea } from "@/components/ui/textarea";
 
 const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
+// API day_of_week: 0=Sunday, 1=Monday, .. 6=Saturday (same as JS Date.getDay())
 function getDayOfWeek(dateStr: string): number {
   const d = new Date(dateStr + "T12:00:00");
-  const jsDay = d.getDay(); // 0=Sun, 1=Mon, .. 6=Sat
-  return jsDay === 0 ? 7 : jsDay; // API: 1=Mon .. 7=Sun
+  return d.getDay();
 }
 
 export default function BookAppointmentTab() {

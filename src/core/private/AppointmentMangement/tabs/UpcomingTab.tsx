@@ -1,7 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { FilterAccordion } from "@/components/ui/FilterAccordion";
-import { formatDateYYYYMMDD } from "@/utility/date";
 import {
   useGetUpcomingAppointments,
   useApproveAppointment,
@@ -244,8 +243,8 @@ export default function UpcomingTab() {
         onApply={({ range, values }) => {
           setFilters((prev) => ({
             ...prev,
-            date_from: range?.from ? formatDateYYYYMMDD(range.from) : prev.date_from,
-            date_to: range?.to ? formatDateYYYYMMDD(range.to) : prev.date_to,
+            date_from: range?.from ?? prev.date_from,
+            date_to: range?.to ?? prev.date_to,
             clinic_id: values.clinicId,
             department_id: values.departmentId,
             doctor_id: values.doctorId,
@@ -338,6 +337,32 @@ function ApproveDialog({
   const { data: deptData } = useGetDepartment(body.clinic_id);
   const { data: doctorData } = useGetDoctor(body.department_id);
 
+  // Sync form from row when dialog opens or row changes
+  useEffect(() => {
+    if (!open || !row) return;
+    setBody({
+      clinic_id: row.clinic_id ?? 0,
+      department_id: row.department_id ?? 0,
+      doctor_id: row.doctor_id ?? 0,
+      appointment_type: row.appointment_type ?? AppointmentTypeEnum.REGULAR_CHECKUP,
+      scheduled_start_time: row.scheduled_start_time ?? "",
+      notes: row.notes ?? null,
+    });
+  }, [open, row]);
+
+  // When department changes or doctors load, default doctor_id to first doctor if current is 0 or invalid
+  useEffect(() => {
+    const list = doctorData?.data ?? [];
+    if (list.length === 0) return;
+    const firstId = list[0]?.id;
+    if (firstId == null) return;
+    setBody((b) => {
+      const valid = list.some((d: any) => Number(d.id) === Number(b.doctor_id));
+      if (valid && b.doctor_id !== 0) return b;
+      return { ...b, doctor_id: Number(firstId) };
+    });
+  }, [body.department_id, doctorData?.data?.length]);
+
   const handleSubmit = () => {
     approve.mutate(body as any, { onSuccess });
   };
@@ -354,8 +379,9 @@ function ApproveDialog({
             <select
               className="w-full border rounded-md h-9 px-2"
               value={body.clinic_id}
-              onChange={(e) => setBody((b) => ({ ...b, clinic_id: Number(e.target.value) }))}
+              onChange={(e) => setBody((b) => ({ ...b, clinic_id: Number(e.target.value), department_id: 0, doctor_id: 0 }))}
             >
+              <option value={0}>Select clinic</option>
               {clinicData?.data?.map((c: any) => (
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}
@@ -366,8 +392,9 @@ function ApproveDialog({
             <select
               className="w-full border rounded-md h-9 px-2"
               value={body.department_id}
-              onChange={(e) => setBody((b) => ({ ...b, department_id: Number(e.target.value) }))}
+              onChange={(e) => setBody((b) => ({ ...b, department_id: Number(e.target.value), doctor_id: 0 }))}
             >
+              <option value={0}>Select department</option>
               {deptData?.data?.map((d: any) => (
                 <option key={d.id} value={d.id}>{d.name}</option>
               ))}
@@ -380,6 +407,7 @@ function ApproveDialog({
               value={body.doctor_id}
               onChange={(e) => setBody((b) => ({ ...b, doctor_id: Number(e.target.value) }))}
             >
+              <option value={0}>Select doctor</option>
               {doctorData?.data?.map((d: any) => (
                 <option key={d.id} value={d.id}>{d.name}</option>
               ))}
@@ -415,7 +443,7 @@ function ApproveDialog({
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={handleSubmit} disabled={approve.isPending}>Approve</Button>
+          <Button onClick={handleSubmit} disabled={approve.isPending || !body.doctor_id}>Approve</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -140,11 +140,11 @@ export const useAddAppointment = () => useBookAppointment();
 export const useUpdateAppointment = (id: string | number | undefined) =>
     useApiMutation("put", API_ENDPOINTS.APPOINTMENT.UPDATE(id));
 
-// Approve / Reject / Reschedule / Follow-up (PUT with body)
+// Approve / Reject (POST with body); Reschedule (PUT with body)
 export const useApproveAppointment = (id: string | number | undefined) =>
-    useApiMutation("put", API_ENDPOINTS.APPOINTMENT.APPROVE(id));
+    useApiMutation("post", API_ENDPOINTS.APPOINTMENT.APPROVE(id));
 export const useRejectAppointment = (id: string | number | undefined) =>
-    useApiMutation("put", API_ENDPOINTS.APPOINTMENT.REJECT(id));
+    useApiMutation("post", API_ENDPOINTS.APPOINTMENT.REJECT(id));
 export const useRescheduleAppointment = (id: string | number | undefined) =>
     useApiMutation("put", API_ENDPOINTS.APPOINTMENT.RESCHEDULE(id));
 export const useFollowUpAppointment = (id: string | number | undefined) =>

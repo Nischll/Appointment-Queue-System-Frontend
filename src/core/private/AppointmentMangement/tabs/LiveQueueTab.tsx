@@ -57,7 +57,6 @@ const STATUS_LABEL: Record<string, string> = {
   [AppointmentStatusEnum.CANCELLED]: "Cancelled",
 };
 
-const WAITING_STATUSES = [AppointmentStatusEnum.BOOKED, AppointmentStatusEnum.CHECKED_IN];
 const OTHER_STATUSES = [
   AppointmentStatusEnum.COMPLETED,
   AppointmentStatusEnum.REJECTED,
@@ -79,13 +78,14 @@ function LiveCard({
   highlight?: boolean;
 }) {
   const appt = item.appointment ?? item;
+  const prediction = item.prediction;
   const checkIn = useCheckInAppointment(appt.id);
   const start = useStartAppointment(appt.id);
   const complete = useCompleteAppointment(appt.id);
   const status = appt.status;
   const queueNum = appt.queue_number ?? item.queue_position ?? "—";
-  const waitMins = appt.estimated_wait_minutes ?? item.estimated_wait_minutes ?? null;
-  const confidence = appt.wait_time_confidence ?? item.wait_time_confidence ?? appt.confidence_level ?? item.confidence_level ?? null;
+  const waitMins = prediction?.predicted_wait_minutes ?? appt.estimated_wait_minutes ?? item.estimated_wait_minutes ?? null;
+  const confidence = prediction?.confidence ?? appt.wait_time_confidence ?? item.wait_time_confidence ?? appt.confidence_level ?? item.confidence_level ?? null;
 
   const actions: { label: string; onClick: () => void; loading: boolean }[] = [];
   if (onDetailsClick) {
@@ -198,23 +198,30 @@ export default function LiveQueueTab() {
 
   const list = useMemo(() => (data?.data ?? []) as any[], [data]);
 
-  const { inProgress, waiting, other } = useMemo(() => {
+  const { inProgress, checkedIn, waiting, other } = useMemo(() => {
     const inProgress: any[] = [];
+    const checkedIn: any[] = [];
     const waiting: any[] = [];
     const other: any[] = [];
     list.forEach((item) => {
       const appt = item.appointment ?? item;
       const st = appt.status;
       if (st === AppointmentStatusEnum.IN_PROGRESS) inProgress.push(item);
-      else if (WAITING_STATUSES.includes(st)) waiting.push(item);
+      else if (st === AppointmentStatusEnum.CHECKED_IN) checkedIn.push(item);
+      else if (st === AppointmentStatusEnum.BOOKED) waiting.push(item);
       else if (OTHER_STATUSES.includes(st)) other.push(item);
+    });
+    checkedIn.sort((a, b) => {
+      const qA = (a.appointment ?? a).queue_number ?? (a as any).queue_position ?? 9999;
+      const qB = (b.appointment ?? b).queue_number ?? (b as any).queue_position ?? 9999;
+      return Number(qA) - Number(qB);
     });
     waiting.sort((a, b) => {
       const qA = (a.appointment ?? a).queue_number ?? (a as any).queue_position ?? 9999;
       const qB = (b.appointment ?? b).queue_number ?? (b as any).queue_position ?? 9999;
       return Number(qA) - Number(qB);
     });
-    return { inProgress, waiting, other };
+    return { inProgress, checkedIn, waiting, other };
   }, [list]);
 
   const hasOther = other.length > 0;
@@ -285,7 +292,28 @@ export default function LiveQueueTab() {
             </section>
           )}
 
-          {/* Waiting — BOOKED / CHECKED_IN by queue */}
+          {/* Checked in — separate section */}
+          {checkedIn.length > 0 && (
+            <section>
+              <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                Checked in
+              </h2>
+              <p className="text-sm text-muted-foreground mb-3">Ordered by queue position</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {checkedIn.map((item) => (
+                  <LiveCard
+                    key={(item.appointment ?? item).id}
+                    item={item}
+                    onSuccess={refetch}
+                    onFollowUpClick={setFollowUpItem}
+                    onDetailsClick={setDetailsItem}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Waiting — BOOKED by queue */}
           {(waiting.length > 0) && (
             <section>
               <h2 className="text-lg font-semibold mb-3">Waiting ({waiting.length})</h2>
@@ -427,15 +455,20 @@ function AppointmentDetailsDialog({
   onNoShowConfirm: () => void;
 }) {
   const appt = item?.appointment ?? item;
+  const prediction = item?.prediction;
   const status = appt?.status;
-  const canUpdate = [AppointmentStatusEnum.REQUESTED, AppointmentStatusEnum.BOOKED, AppointmentStatusEnum.CHECKED_IN, AppointmentStatusEnum.IN_PROGRESS].includes(status ?? "");
+  // Update and cancel allowed only up to CHECKED_IN; once started (IN_PROGRESS) or beyond, disallow
+  const canUpdate = [AppointmentStatusEnum.REQUESTED, AppointmentStatusEnum.BOOKED, AppointmentStatusEnum.CHECKED_IN].includes(status ?? "");
   const canReschedule = [AppointmentStatusEnum.REQUESTED, AppointmentStatusEnum.BOOKED, AppointmentStatusEnum.CHECKED_IN].includes(status);
-  const canCancel = [AppointmentStatusEnum.REQUESTED, AppointmentStatusEnum.BOOKED, AppointmentStatusEnum.CHECKED_IN, AppointmentStatusEnum.IN_PROGRESS].includes(status);
+  const canCancel = [AppointmentStatusEnum.REQUESTED, AppointmentStatusEnum.BOOKED, AppointmentStatusEnum.CHECKED_IN].includes(status ?? "");
   const canNoShow = [AppointmentStatusEnum.BOOKED, AppointmentStatusEnum.CHECKED_IN].includes(status);
+
+  const estWait = prediction?.predicted_wait_minutes ?? appt?.estimated_wait_minutes;
+  const expl = prediction?.explanation;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Appointment details</DialogTitle>
         </DialogHeader>
@@ -449,8 +482,35 @@ function AppointmentDetailsDialog({
           <DetailRow label="Status" value={status != null ? STATUS_LABEL[status] ?? status : undefined} />
           <DetailRow label="Type" value={appt?.appointment_type} />
           <DetailRow label="Queue" value={appt?.queue_number != null ? `#${appt.queue_number}` : undefined} />
-          {appt?.estimated_wait_minutes != null && <DetailRow label="Est. wait" value={`${appt.estimated_wait_minutes} min`} />}
+          {estWait != null && <DetailRow label="Est. wait" value={`${estWait} min`} />}
+          {appt?.is_walk_in != null && <DetailRow label="Walk-in" value={appt.is_walk_in ? "Yes" : "No"} />}
+          <DetailRow label="Checked in time" value={appt?.checked_in_time} />
+          <DetailRow label="Actual start" value={appt?.actual_start_time} />
+          <DetailRow label="Actual end" value={appt?.actual_end_time} />
+          <DetailRow label="Created by" value={appt?.appointment_created_by} />
+          <DetailRow label="Approved by" value={appt?.appointment_approved_by} />
+          <DetailRow label="Cancelled by" value={appt?.appointment_cancelled_by} />
+          <DetailRow label="Cancellation reason" value={appt?.cancellation_reason} />
           {appt?.notes && <DetailRow label="Notes" value={appt.notes} />}
+          {(prediction?.confidence != null || prediction?.my_position != null) && (
+            <>
+              <div className="pt-2 mt-2 border-t font-medium text-muted-foreground">Wait time prediction</div>
+              {prediction?.confidence != null && <DetailRow label="Confidence" value={prediction.confidence} />}
+              {prediction?.my_position != null && <DetailRow label="Position in queue" value={prediction.my_position} />}
+              {expl && (
+                <>
+                  <div className="pt-1 mt-1 text-muted-foreground font-medium">Explanation</div>
+                  {expl.remaining_current_minutes != null && <DetailRow label="Remaining (current)" value={`${expl.remaining_current_minutes} min`} />}
+                  {expl.patients_ahead != null && <DetailRow label="Patients ahead" value={expl.patients_ahead} />}
+                  {expl.avg_duration_used != null && <DetailRow label="Avg duration used" value={`${expl.avg_duration_used} min`} />}
+                  {expl.base_avg_duration != null && <DetailRow label="Base avg duration" value={`${expl.base_avg_duration} min`} />}
+                  {expl.avg_start_delay != null && <DetailRow label="Avg start delay" value={`${expl.avg_start_delay} min`} />}
+                  {expl.no_show_rate != null && <DetailRow label="No-show rate" value={typeof expl.no_show_rate === "number" ? `${(expl.no_show_rate * 100).toFixed(0)}%` : expl.no_show_rate} />}
+                  {expl.model_used && <DetailRow label="Model" value={expl.model_used} />}
+                </>
+              )}
+            </>
+          )}
         </div>
         <DialogFooter className="flex-wrap gap-2">
           {canUpdate && <Button type="button" variant="outline" size="sm" onClick={onUpdate}>Update</Button>}

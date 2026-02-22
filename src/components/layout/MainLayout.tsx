@@ -104,7 +104,7 @@ const MainLayout = () => {
       <div className="flex flex-col flex-1 h-full">
         {/* Top bar */}
         <div className="sticky w-inherit top-0 z-20 h-16 border-b-2 border-border/50 bg-background/95 backdrop-blur-sm shadow-sm">
-          <div className="flex h-16 items-center px-4 sm:px-6 lg:px-8">
+          <div className="flex h-16 items-center px-2">
             <Button
               variant="ghost"
               size="sm"
