@@ -59,6 +59,7 @@ export interface UpdateAppointmentBody {
 
 /** Approve appointment body */
 export interface ApproveAppointmentBody {
+  appointment_date?: string;
   clinic_id: number;
   department_id: number;
   doctor_id: number;

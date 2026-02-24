@@ -14,6 +14,7 @@ import {
   useGetDoctor,
   useGetClinic,
   useGetDepartment,
+  useGetDoctorShift,
 } from "@/components/ApiCall/Api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,7 @@ import {
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import { AppointmentStatusEnum, AppointmentTypeEnum } from "@/enums/AppointmentEnum";
 import { ChevronDown, ChevronUp, User } from "lucide-react";
+import { DAY_NAMES, getDoctorShiftSummary, isDoctorUnavailable } from "../doctorAvailability";
 
 /** Format "HH:mm" to "10:30 AM" for API */
 function formatTimeForApi(value: string): string {
@@ -568,6 +570,9 @@ function UpdateAppointmentDialog({
   const { data: clinicData } = useGetClinic();
   const { data: departmentData } = useGetDepartment(clinic_id || undefined);
   const { data: doctorData } = useGetDoctor(department_id || undefined);
+  const { data: shiftData } = useGetDoctorShift(doctor_id || undefined, department_id || undefined);
+  const appointmentDate = appt?.appointment_date ?? "";
+  const doctorShiftSummary = getDoctorShiftSummary(shiftData as any, appointmentDate, doctor_id || undefined);
 
   const handleSubmit = () => {
     const body = {
@@ -619,6 +624,11 @@ function UpdateAppointmentDialog({
             <Label>Start time</Label>
             <Input name="upd_time" type="time" value={scheduled_start_time} onChange={(e) => setScheduled_start_time(e.target.value)} />
           </div>
+          {doctor_id && appointmentDate && doctorShiftSummary && (
+            <div className="rounded-md bg-muted/50 p-3 text-sm">
+              <strong>Doctor availability ({DAY_NAMES[new Date(appointmentDate + "T12:00:00").getDay()]}):</strong> {doctorShiftSummary}
+            </div>
+          )}
           <div className="flex items-center gap-2">
             <input type="checkbox" checked={is_walk_in} onChange={(e) => setIs_walk_in(e.target.checked)} />
             <Label>Walk-in</Label>
@@ -630,7 +640,7 @@ function UpdateAppointmentDialog({
         </div>
         <DialogFooter>
           <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button type="button" onClick={handleSubmit} disabled={updateMutation.isPending}>Update</Button>
+          <Button type="button" onClick={handleSubmit} disabled={updateMutation.isPending || isDoctorUnavailable(doctorShiftSummary)}>Update</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -659,6 +669,10 @@ function RescheduleLiveDialog({
   const { data: clinicData } = useGetClinic();
   const { data: departmentData } = useGetDepartment(clinic_id || undefined);
   const { data: doctorData } = useGetDoctor(department_id || undefined);
+  const effectiveDoctorId = doctor_id === "" ? appt?.doctor_id : doctor_id;
+  const effectiveDeptId = department_id === "" ? appt?.department_id : department_id;
+  const { data: shiftData } = useGetDoctorShift(effectiveDoctorId, effectiveDeptId);
+  const doctorShiftSummary = getDoctorShiftSummary(shiftData as any, appointment_date, effectiveDoctorId);
 
   const handleSubmit = () => {
     if (!appointment_date || !scheduled_start_time) return;
@@ -686,6 +700,11 @@ function RescheduleLiveDialog({
             <Label>Start time</Label>
             <Input name="res_time" type="time" value={scheduled_start_time} onChange={(e) => setScheduled_start_time(e.target.value)} />
           </div>
+          {effectiveDoctorId && appointment_date && doctorShiftSummary && (
+            <div className="rounded-md bg-muted/50 p-3 text-sm">
+              <strong>Doctor availability ({DAY_NAMES[new Date(appointment_date + "T12:00:00").getDay()]}):</strong> {doctorShiftSummary}
+            </div>
+          )}
           <div>
             <Label>Clinic (optional)</Label>
             <select className="w-full border rounded-md h-10 px-3" value={clinic_id === "" ? "" : clinic_id} onChange={(e) => setClinic_id(e.target.value === "" ? "" : Number(e.target.value))}>
@@ -714,7 +733,7 @@ function RescheduleLiveDialog({
         </div>
         <DialogFooter>
           <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button type="button" onClick={handleSubmit} disabled={reschedule.isPending || !appointment_date || !scheduled_start_time}>Reschedule</Button>
+          <Button type="button" onClick={handleSubmit} disabled={reschedule.isPending || !appointment_date || !scheduled_start_time || isDoctorUnavailable(doctorShiftSummary)}>Reschedule</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -773,6 +792,9 @@ function FollowUpDialog({
   const [doctor_id, setDoctor_id] = useState<number | "">("");
   const followUp = useFollowUpAppointment(appt?.id);
   const { data: doctorData } = useGetDoctor(appt?.department_id);
+  const effectiveDoctorId = doctor_id === "" ? appt?.doctor_id : doctor_id;
+  const { data: shiftData } = useGetDoctorShift(effectiveDoctorId, appt?.department_id);
+  const doctorShiftSummary = getDoctorShiftSummary(shiftData as any, appointment_date, effectiveDoctorId);
 
   const handleSubmit = () => {
     if (!appointment_date || !scheduled_start_time) return;
@@ -816,6 +838,11 @@ function FollowUpDialog({
               onChange={(e) => setScheduled_start_time(e.target.value)}
             />
           </div>
+          {effectiveDoctorId && appointment_date && doctorShiftSummary && (
+            <div className="rounded-md bg-muted/50 p-3 text-sm">
+              <strong>Doctor availability ({DAY_NAMES[new Date(appointment_date + "T12:00:00").getDay()]}):</strong> {doctorShiftSummary}
+            </div>
+          )}
           <div>
             <Label>Notes</Label>
             <Input
@@ -850,7 +877,7 @@ function FollowUpDialog({
           <Button
             type="button"
             onClick={handleSubmit}
-            disabled={followUp.isPending || !appointment_date || !scheduled_start_time}
+            disabled={followUp.isPending || !appointment_date || !scheduled_start_time || isDoctorUnavailable(doctorShiftSummary)}
           >
             {followUp.isPending ? "Scheduling…" : "Schedule follow-up"}
           </Button>

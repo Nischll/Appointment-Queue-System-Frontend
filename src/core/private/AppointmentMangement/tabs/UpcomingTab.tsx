@@ -9,6 +9,7 @@ import {
   useGetClinic,
   useGetDepartment,
   useGetDoctor,
+  useGetDoctorShift,
 } from "@/components/ApiCall/Api";
 import Table, { Column } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { API_ENDPOINTS } from "@/components/constants/ApiEndpoints/apiEndpoints";
 import { AppointmentTypeEnum } from "@/enums/AppointmentEnum";
 import type { ApproveAppointmentBody, RejectAppointmentBody, RescheduleAppointmentBody } from "../types";
+import { DAY_NAMES, getDoctorShiftSummary, isDoctorUnavailable } from "../doctorAvailability";
 
 type UpcomingRow = {
   id: number;
@@ -325,6 +327,7 @@ function ApproveDialog({
   onSuccess: () => void;
 }) {
   const [body, setBody] = useState<ApproveAppointmentBody>({
+    appointment_date: row.appointment_date ?? "",
     clinic_id: row.clinic_id ?? 0,
     department_id: row.department_id ?? 0,
     doctor_id: row.doctor_id ?? 0,
@@ -336,11 +339,14 @@ function ApproveDialog({
   const { data: clinicData } = useGetClinic();
   const { data: deptData } = useGetDepartment(body.clinic_id);
   const { data: doctorData } = useGetDoctor(body.department_id);
+  const { data: shiftData } = useGetDoctorShift(body.doctor_id, body.department_id);
+  const doctorShiftSummary = getDoctorShiftSummary(shiftData as any, body.appointment_date, body.doctor_id);
 
   // Sync form from row when dialog opens or row changes
   useEffect(() => {
     if (!open || !row) return;
     setBody({
+      appointment_date: row.appointment_date ?? "",
       clinic_id: row.clinic_id ?? 0,
       department_id: row.department_id ?? 0,
       doctor_id: row.doctor_id ?? 0,
@@ -426,6 +432,14 @@ function ApproveDialog({
             </select>
           </div>
           <div>
+            <Label>Appointment date</Label>
+            <Input
+              type="date"
+              value={body.appointment_date ?? ""}
+              onChange={(e) => setBody((b) => ({ ...b, appointment_date: e.target.value }))}
+            />
+          </div>
+          <div>
             <Label>Start time</Label>
             <Input
               type="time"
@@ -433,6 +447,11 @@ function ApproveDialog({
               onChange={(e) => setBody((b) => ({ ...b, scheduled_start_time: e.target.value }))}
             />
           </div>
+          {body.doctor_id && body.appointment_date && doctorShiftSummary && (
+            <div className="rounded-md bg-muted/50 p-3 text-sm">
+              <strong>Doctor availability ({DAY_NAMES[new Date(body.appointment_date + "T12:00:00").getDay()]}):</strong> {doctorShiftSummary}
+            </div>
+          )}
           <div>
             <Label>Notes</Label>
             <Input
@@ -443,7 +462,12 @@ function ApproveDialog({
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={handleSubmit} disabled={approve.isPending || !body.doctor_id}>Approve</Button>
+          <Button
+            onClick={handleSubmit}
+            disabled={approve.isPending || !body.doctor_id || !body.appointment_date || isDoctorUnavailable(doctorShiftSummary)}
+          >
+            Approve
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -505,6 +529,9 @@ function RescheduleDialog({
     notes: row.notes ?? null,
   });
   const reschedule = useRescheduleAppointment(row.id);
+  const { data: shiftData } = useGetDoctorShift(row.doctor_id, row.department_id);
+  const doctorShiftSummary = getDoctorShiftSummary(shiftData as any, body.appointment_date, row.doctor_id);
+
   const handleSubmit = () => {
     reschedule.mutate(body as any, { onSuccess });
   };
@@ -529,6 +556,11 @@ function RescheduleDialog({
               onChange={(e) => setBody((b) => ({ ...b, scheduled_start_time: e.target.value }))}
             />
           </div>
+          {row.doctor_id && body.appointment_date && doctorShiftSummary && (
+            <div className="rounded-md bg-muted/50 p-3 text-sm">
+              <strong>Doctor availability ({DAY_NAMES[new Date(body.appointment_date + "T12:00:00").getDay()]}):</strong> {doctorShiftSummary}
+            </div>
+          )}
           <div>
             <Label>Notes</Label>
             <Input
@@ -539,7 +571,12 @@ function RescheduleDialog({
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={handleSubmit} disabled={reschedule.isPending}>Reschedule</Button>
+          <Button
+            onClick={handleSubmit}
+            disabled={reschedule.isPending || !body.appointment_date || !body.scheduled_start_time || isDoctorUnavailable(doctorShiftSummary)}
+          >
+            Reschedule
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -20,14 +20,7 @@ import { useNavigate } from "react-router-dom";
 import type { BookAppointmentBody } from "../types";
 import { UserPlus } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
-
-const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-// API day_of_week: 0=Sunday, 1=Monday, .. 6=Saturday (same as JS Date.getDay())
-function getDayOfWeek(dateStr: string): number {
-  const d = new Date(dateStr + "T12:00:00");
-  return d.getDay();
-}
+import { DAY_NAMES, getDayOfWeek, getDoctorShiftSummary } from "../doctorAvailability";
 
 export default function BookAppointmentTab() {
   const [selectedPatientId, setSelectedPatientId] = useState<number | undefined>();
@@ -50,17 +43,10 @@ export default function BookAppointmentTab() {
   const bookMutation = useBookAppointment();
   const patient = patientDetails?.data;
 
-  const doctorShiftSummary = useMemo(() => {
-    const shifts = (shiftData as any)?.data ?? [];
-    if (!appointmentDate || !doctorId || shifts.length === 0) return null;
-    const dayOfWeek = getDayOfWeek(appointmentDate);
-    const dayShift = shifts.find((s: any) => Number(s.day_of_week) === dayOfWeek);
-    if (!dayShift) return "No shift for this day.";
-    if (dayShift.is_day_off) return "Day off.";
-    const start = dayShift.start_time ?? "";
-    const end = dayShift.end_time ?? "";
-    return start && end ? `${start} – ${end}` : "Shift set";
-  }, [shiftData, appointmentDate, doctorId]);
+  const doctorShiftSummary = useMemo(
+    () => getDoctorShiftSummary(shiftData as any, appointmentDate, doctorId),
+    [shiftData, appointmentDate, doctorId]
+  );
 
   const onSubmit = (values: Partial<BookAppointmentBody> & { is_walk_in: boolean }) => {
     if (selectedPatientId == null || !values.clinic_id || !values.department_id || !values.doctor_id || !values.appointment_type || !values.appointment_date || !values.scheduled_start_time) return;

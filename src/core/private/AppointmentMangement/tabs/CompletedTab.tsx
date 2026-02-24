@@ -4,6 +4,7 @@ import AppointmentFilter from "@/core/private/AppointmentMangement/AppointmentFi
 import {
   useGetUpcomingAppointments,
   useFollowUpAppointment,
+  useGetDoctorShift,
 } from "@/components/ApiCall/Api";
 import Table, { Column } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -19,12 +20,14 @@ import { Input } from "@/components/ui/input";
 import { useQueryClient } from "@tanstack/react-query";
 import { API_ENDPOINTS } from "@/components/constants/ApiEndpoints/apiEndpoints";
 import type { FollowUpAppointmentBody } from "../types";
+import { DAY_NAMES, getDoctorShiftSummary, isDoctorUnavailable } from "../doctorAvailability";
 
 type CompletedRow = {
   id: number;
   patient_name?: string;
   doctor_name?: string;
   department_name?: string;
+  department_id?: number;
   clinic_name?: string;
   appointment_date?: string;
   scheduled_start_time?: string;
@@ -166,6 +169,9 @@ function FollowUpDialog({
     doctor_id: row.doctor_id ?? undefined,
   });
   const followUp = useFollowUpAppointment(row.id);
+  const effectiveDoctorId = body.doctor_id ?? row.doctor_id;
+  const { data: shiftData } = useGetDoctorShift(effectiveDoctorId, row.department_id);
+  const doctorShiftSummary = getDoctorShiftSummary(shiftData as any, body.appointment_date, effectiveDoctorId);
 
   const handleSubmit = () => {
     followUp.mutate(body as any, { onSuccess });
@@ -192,6 +198,11 @@ function FollowUpDialog({
               onChange={(e) => setBody((b) => ({ ...b, scheduled_start_time: e.target.value }))}
             />
           </div>
+          {effectiveDoctorId && row.department_id && body.appointment_date && doctorShiftSummary && (
+            <div className="rounded-md bg-muted/50 p-3 text-sm">
+              <strong>Doctor availability ({DAY_NAMES[new Date(body.appointment_date + "T12:00:00").getDay()]}):</strong> {doctorShiftSummary}
+            </div>
+          )}
           <div>
             <Label>Notes</Label>
             <Input
@@ -202,7 +213,10 @@ function FollowUpDialog({
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={handleSubmit} disabled={followUp.isPending || !body.appointment_date || !body.scheduled_start_time}>
+          <Button
+            onClick={handleSubmit}
+            disabled={followUp.isPending || !body.appointment_date || !body.scheduled_start_time || isDoctorUnavailable(doctorShiftSummary)}
+          >
             Create follow-up
           </Button>
         </DialogFooter>
