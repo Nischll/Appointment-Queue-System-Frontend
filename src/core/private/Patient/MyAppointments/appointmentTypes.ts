@@ -46,6 +46,7 @@ export interface Appointment {
   id: number;
   patient_id?: number;
   patient_name?: string;
+  patient_phone?: string;
   preferred_date?: string; // For booking/upcoming
   preferred_time?: string; // For booking/upcoming
   appointment_date?: string; // For history
@@ -67,6 +68,10 @@ export interface Appointment {
   is_walk_in?: boolean;
   created_at?: string;
   updated_at?: string;
+  appointment_created_by?: string | null;
+  appointment_approved_by?: string | null;
+  appointment_cancelled_by?: string | null;
+  appointment_rescheduled_by?: string | null;
 }
 
 // Booking Request Type

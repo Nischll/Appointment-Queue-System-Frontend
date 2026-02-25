@@ -165,8 +165,8 @@ export default function BookingFlow({ onSuccess }: BookingFlowProps) {
                       isActive
                         ? "bg-primary text-primary-foreground border-primary"
                         : isCompleted
-                        ? "bg-green-500 text-white border-green-500"
-                        : "bg-muted text-muted-foreground border-muted-foreground"
+                          ? "bg-green-500 text-white border-green-500"
+                          : "bg-muted text-muted-foreground border-muted-foreground"
                     )}
                   >
                     {isCompleted ? (
@@ -385,8 +385,8 @@ export default function BookingFlow({ onSuccess }: BookingFlowProps) {
                 </p>
                 <Textarea
                   id="notes"
-                  {...form.register("notes", { 
-                    required: "Notes are required. Please describe your appointment needs." 
+                  {...form.register("notes", {
+                    required: "Notes are required. Please describe your appointment needs."
                   })}
                   placeholder="Describe your symptoms, concerns, or reason for the appointment..."
                   className="mt-2"

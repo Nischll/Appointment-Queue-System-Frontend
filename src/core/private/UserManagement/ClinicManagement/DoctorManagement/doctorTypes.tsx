@@ -1,4 +1,4 @@
-// doctorTypes.ts
+
 
 export interface Doctor {
     id?: number | string;

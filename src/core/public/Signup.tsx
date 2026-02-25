@@ -53,10 +53,8 @@ const Signup = () => {
   });
 
   const onSubmit = (data: SignupFormData) => {
-    // Calculate age from date of birth
     const age = calculateAge(data.date_of_birth);
-    
-    // Prepare payload matching API requirements
+
     const payload = {
       full_name: data.full_name,
       username: data.username,
@@ -71,7 +69,6 @@ const Signup = () => {
     postSignUpData(payload, {
       onSuccess: () => {
         form.reset();
-        // Navigate to login page after successful signup
         navigate("/login");
       },
     });
@@ -108,7 +105,7 @@ const Signup = () => {
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="username"
@@ -254,8 +251,8 @@ const Signup = () => {
           <div className="mt-4 text-center">
             <p className="text-xs sm:text-sm text-gray-600">
               Already have an account?{" "}
-              <Link 
-                to="/login" 
+              <Link
+                to="/login"
                 className="font-semibold text-blue-600 hover:text-blue-700 hover:underline transition-colors"
               >
                 Sign In

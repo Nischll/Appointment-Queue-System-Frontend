@@ -338,7 +338,7 @@ const UserTable = () => {
                       value={roleOptions.find((o) => o.value === field.value)}
                       onChange={(val) => field.onChange((val as Option).value)}
                       error={fieldState.error?.message}
-                      // disabled={mode === "edit"}
+                    // disabled={mode === "edit"}
                     />
                   )}
                 />

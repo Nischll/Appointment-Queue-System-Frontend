@@ -64,7 +64,6 @@ const ClinicTable = () => {
         },
     });
 
-    /* Populate form on edit */
     useEffect(() => {
         if (mode === "edit" && selectedClinic) {
             form.reset(selectedClinic);
@@ -149,27 +148,27 @@ const ClinicTable = () => {
                             </span>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 items-center">
-                        {clinics.map((clinic) => (
-                            <Card
-                                key={clinic.id}
-                                onClick={() => handleClinicClick(clinic)}
-                                className={cn(
-                                    "cursor-pointer transition-all duration-200 border-2 group",
-                                    activeClinicId === clinic.id
-                                        ? "border-primary shadow-lg ring-2 ring-primary/20 bg-primary/5 dark:bg-primary/10"
-                                        : "border-border hover:border-primary/50 hover:shadow-md hover:-translate-y-1"
-                                )}
-                            >
-                                <CardContent className="p-2.5">
-                                    <div className="flex items-start justify-between mb-1.5">
-                                        <div className={cn(
-                                            "h-7 w-7 rounded-md flex items-center justify-center transition-colors flex-shrink-0",
-                                            activeClinicId === clinic.id
-                                                ? "bg-primary text-primary-foreground"
-                                                : "bg-primary/10 text-primary group-hover:bg-primary/20"
-                                        )}>
-                                            <Building2 className="h-3.5 w-3.5" />
-                                        </div>
+                            {clinics.map((clinic) => (
+                                <Card
+                                    key={clinic.id}
+                                    onClick={() => handleClinicClick(clinic)}
+                                    className={cn(
+                                        "cursor-pointer transition-all duration-200 border-2 group",
+                                        activeClinicId === clinic.id
+                                            ? "border-primary shadow-lg ring-2 ring-primary/20 bg-primary/5 dark:bg-primary/10"
+                                            : "border-border hover:border-primary/50 hover:shadow-md hover:-translate-y-1"
+                                    )}
+                                >
+                                    <CardContent className="p-2.5">
+                                        <div className="flex items-start justify-between mb-1.5">
+                                            <div className={cn(
+                                                "h-7 w-7 rounded-md flex items-center justify-center transition-colors flex-shrink-0",
+                                                activeClinicId === clinic.id
+                                                    ? "bg-primary text-primary-foreground"
+                                                    : "bg-primary/10 text-primary group-hover:bg-primary/20"
+                                            )}>
+                                                <Building2 className="h-3.5 w-3.5" />
+                                            </div>
                                             {activeClinicId === clinic.id && (
                                                 <div className="w-full text-center border-b border-primary/20">
                                                     <span className="text-xs font-medium text-primary">
@@ -177,84 +176,84 @@ const ClinicTable = () => {
                                                     </span>
                                                 </div>
                                             )}
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className={cn(
-                                                        "h-6 w-6 -mr-1",
-                                                        activeClinicId === clinic.id
-                                                            ? "text-primary hover:bg-primary/10"
-                                                            : "text-muted-foreground hover:text-foreground"
-                                                    )}
-                                                    onClick={(e) => e.stopPropagation()}
-                                                >
-                                                    <MoreVertical className="h-3 w-3" />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end">
-                                                <DropdownMenuItem onClick={() => handleEditClinic(clinic)}>
-                                                    <Edit2 className="h-4 w-4 mr-2" />
-                                                    Edit
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem
-                                                    className="text-red-600 focus:text-red-600"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleDeleteClinic(clinic);
-                                                    }}
-                                                >
-                                                    <Trash2 className="h-4 w-4 mr-2" />
-                                                    Delete
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    </div>
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className={cn(
+                                                            "h-6 w-6 -mr-1",
+                                                            activeClinicId === clinic.id
+                                                                ? "text-primary hover:bg-primary/10"
+                                                                : "text-muted-foreground hover:text-foreground"
+                                                        )}
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    >
+                                                        <MoreVertical className="h-3 w-3" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    <DropdownMenuItem onClick={() => handleEditClinic(clinic)}>
+                                                        <Edit2 className="h-4 w-4 mr-2" />
+                                                        Edit
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem
+                                                        className="text-red-600 focus:text-red-600"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleDeleteClinic(clinic);
+                                                        }}
+                                                    >
+                                                        <Trash2 className="h-4 w-4 mr-2" />
+                                                        Delete
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </div>
 
-                                    <div className="space-y-1">
-                                        <h3 className={cn(
-                                            "font-semibold text-sm leading-tight line-clamp-1",
-                                            activeClinicId === clinic.id && "text-primary"
-                                        )}>
-                                            {clinic.name}
-                                        </h3>
-                                        <div className="space-y-0.5">
-                                            <div className="flex items-center gap-1  text-muted-foreground">
-                                                <MapPin className="h-2.5 w-2.5 flex-shrink-0" />
-                                                <span className="line-clamp-1 text-xs">{clinic.address || "No address"}</span>
-                                            </div>
-                                            <div className="flex items-center gap-1 text-muted-foreground">
-                                                <Phone className="h-2.5 w-2.5 flex-shrink-0" />
-                                                <span className="text-xs">{clinic.contact || "No contact"}</span>
+                                        <div className="space-y-1">
+                                            <h3 className={cn(
+                                                "font-semibold text-sm leading-tight line-clamp-1",
+                                                activeClinicId === clinic.id && "text-primary"
+                                            )}>
+                                                {clinic.name}
+                                            </h3>
+                                            <div className="space-y-0.5">
+                                                <div className="flex items-center gap-1  text-muted-foreground">
+                                                    <MapPin className="h-2.5 w-2.5 flex-shrink-0" />
+                                                    <span className="line-clamp-1 text-xs">{clinic.address || "No address"}</span>
+                                                </div>
+                                                <div className="flex items-center gap-1 text-muted-foreground">
+                                                    <Phone className="h-2.5 w-2.5 flex-shrink-0" />
+                                                    <span className="text-xs">{clinic.contact || "No contact"}</span>
+                                                </div>
                                             </div>
                                         </div>
+
+
+                                    </CardContent>
+                                </Card>
+                            ))}
+
+                            {/* Add Clinic Card */}
+                            <Card
+                                onClick={handleAddClinic}
+                                className={cn(
+                                    "cursor-pointer transition-all duration-200 border-2 border-dashed group",
+                                    "border-primary/40 hover:border-primary hover:shadow-lg hover:-translate-y-1",
+                                    "bg-gradient-to-br from-primary/15 via-primary/10 to-primary/5 hover:from-primary/25 hover:via-primary/15 hover:to-primary/10",
+                                    "w-24 h-full"
+                                )}
+                            >
+                                <CardContent className="p-2.5 flex flex-col items-center justify-center h-full">
+                                    <div className="h-7 w-7 rounded-md flex items-center justify-center bg-primary text-primary-foreground group-hover:scale-110 transition-all mb-1.5 shadow-md">
+                                        <Plus className="h-3.5 w-3.5" />
                                     </div>
-
-
+                                    <span className="text-xs font-semibold text-primary group-hover:text-primary/90 transition-colors">
+                                        Add Clinic
+                                    </span>
                                 </CardContent>
                             </Card>
-                        ))}
-
-                        {/* Add Clinic Card */}
-                        <Card
-                            onClick={handleAddClinic}
-                            className={cn(
-                                "cursor-pointer transition-all duration-200 border-2 border-dashed group",
-                                "border-primary/40 hover:border-primary hover:shadow-lg hover:-translate-y-1",
-                                "bg-gradient-to-br from-primary/15 via-primary/10 to-primary/5 hover:from-primary/25 hover:via-primary/15 hover:to-primary/10",
-                                "w-24 h-full"
-                            )}
-                        >
-                            <CardContent className="p-2.5 flex flex-col items-center justify-center h-full">
-                                <div className="h-7 w-7 rounded-md flex items-center justify-center bg-primary text-primary-foreground group-hover:scale-110 transition-all mb-1.5 shadow-md">
-                                    <Plus className="h-3.5 w-3.5" />
-                                </div>
-                                <span className="text-xs font-semibold text-primary group-hover:text-primary/90 transition-colors">
-                                    Add Clinic
-                                </span>
-                            </CardContent>
-                        </Card>
                         </div>
                     </div>
                 ) : (

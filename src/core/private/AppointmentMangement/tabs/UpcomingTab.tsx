@@ -6,11 +6,12 @@ import {
   useApproveAppointment,
   useRejectAppointment,
   useRescheduleAppointment,
-  useGetClinic,
+  useGetClinicsByStaff,
   useGetDepartment,
   useGetDoctor,
   useGetDoctorShift,
 } from "@/components/ApiCall/Api";
+import { useAuth } from "@/components/ContextApi/AuthContext";
 import Table, { Column } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,10 +28,12 @@ import { API_ENDPOINTS } from "@/components/constants/ApiEndpoints/apiEndpoints"
 import { AppointmentTypeEnum } from "@/enums/AppointmentEnum";
 import type { ApproveAppointmentBody, RejectAppointmentBody, RescheduleAppointmentBody } from "../types";
 import { DAY_NAMES, getDoctorShiftSummary, isDoctorUnavailable } from "../doctorAvailability";
+import { AppointmentTableExpandable } from "../AppointmentTableExpandable";
 
 type UpcomingRow = {
   id: number;
   patient_name?: string;
+  patient_phone?: string;
   doctor_name?: string;
   department_name?: string;
   clinic_name?: string;
@@ -43,14 +46,18 @@ type UpcomingRow = {
   department_id?: number;
   doctor_id?: number;
   notes?: string | null;
+  appointment_created_by?: string | null;
+  appointment_approved_by?: string | null;
+  appointment_rescheduled_by?: string | null;
+  appointment_cancelled_by?: string | null;
 };
 
-/** Upcoming API only allows these statuses; no "All" - backend requires one */
 const UPCOMING_STATUS_OPTIONS = ["REQUESTED", "BOOKED", "REJECTED"] as const;
 
 function UpcomingClinicSelect() {
   const { register } = useFormContext();
-  const { data: clinicData } = useGetClinic();
+  const { user } = useAuth();
+  const { data: clinicData } = useGetClinicsByStaff(user?.userId);
   return (
     <div>
       <Label>Clinic</Label>
@@ -207,13 +214,21 @@ export default function UpcomingTab() {
 
   const columns: Column<UpcomingRow>[] = useMemo(
     () => [
-      { header: "Patient", accessor: "patient_name" },
+      {
+        header: "Patient",
+        accessor: (row) => (
+          <span>
+            {row.patient_name ?? "—"}
+            {row.patient_phone ? <span className="text-muted-foreground text-xs block mt-0.5">{row.patient_phone}</span> : null}
+          </span>
+        ),
+      },
       { header: "Doctor", accessor: "doctor_name" },
       { header: "Department", accessor: "department_name" },
       { header: "Clinic", accessor: "clinic_name" },
       { header: "Date", accessor: "appointment_date" },
       { header: "Time", accessor: "scheduled_start_time" },
-      { header: "Status", accessor: "status" },
+      { header: "Status", accessor: "status", expandable: (row) => <AppointmentTableExpandable row={row} /> },
       { header: "Type", accessor: "appointment_type" },
       {
         header: "Actions",
@@ -276,17 +291,17 @@ export default function UpcomingTab() {
       )}
 
       {filtersApplied && (
-      <Table<UpcomingRow>
-        data={rows}
-        columns={columns}
-        loading={isLoading}
-        pagination={true}
-        totalItems={totalItems}
-        page={filters.page ?? 1}
-        itemsPerPage={filters.limit ?? 10}
-        onPageChange={(p) => setFilters((f) => ({ ...f, page: p }))}
-        fitToViewport
-      />
+        <Table<UpcomingRow>
+          data={rows}
+          columns={columns}
+          loading={isLoading}
+          pagination={true}
+          totalItems={totalItems}
+          page={filters.page ?? 1}
+          itemsPerPage={filters.limit ?? 10}
+          onPageChange={(p) => setFilters((f) => ({ ...f, page: p }))}
+          fitToViewport
+        />
       )}
 
       {selectedRow && (
@@ -336,13 +351,13 @@ function ApproveDialog({
     notes: row.notes ?? null,
   });
   const approve = useApproveAppointment(row.id);
-  const { data: clinicData } = useGetClinic();
+  const { user } = useAuth();
+  const { data: clinicData } = useGetClinicsByStaff(user?.userId);
   const { data: deptData } = useGetDepartment(body.clinic_id);
   const { data: doctorData } = useGetDoctor(body.department_id);
   const { data: shiftData } = useGetDoctorShift(body.doctor_id, body.department_id);
   const doctorShiftSummary = getDoctorShiftSummary(shiftData as any, body.appointment_date, body.doctor_id);
 
-  // Sync form from row when dialog opens or row changes
   useEffect(() => {
     if (!open || !row) return;
     setBody({
@@ -356,7 +371,6 @@ function ApproveDialog({
     });
   }, [open, row]);
 
-  // When department changes or doctors load, default doctor_id to first doctor if current is 0 or invalid
   useEffect(() => {
     const list = doctorData?.data ?? [];
     if (list.length === 0) return;

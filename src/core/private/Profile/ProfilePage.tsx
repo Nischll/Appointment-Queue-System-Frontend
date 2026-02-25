@@ -3,12 +3,6 @@ import PatientProfile from "@/core/private/Patient/Profile/PatientProfile";
 import StaffProfile from "./StaffProfile";
 import SuperadminProfile from "./SuperadminProfile";
 
-/**
- * Single profile route: /profile
- * Renders role-specific profile UI (Patient | Staff | Superadmin).
- * Backend recommendation: keep a single /api/profile (GET, PUT, change-password) with
- * role-based logic in controller/service so one set of routes works for Staff and Superadmin.
- */
 function isPatient(moduleList: { path?: string | null }[]): boolean {
   return moduleList.some(
     (m) => m.path?.toLowerCase().includes("my-appointments") || m.path?.toLowerCase().includes("my_appointments")

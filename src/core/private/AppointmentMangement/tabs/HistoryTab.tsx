@@ -7,10 +7,12 @@ import Table, { Column } from "@/components/ui/table";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { AppointmentTypeEnum } from "@/enums/AppointmentEnum";
+import { AppointmentTableExpandable } from "../AppointmentTableExpandable";
 
 type HistoryRow = {
   id: number;
   patient_name?: string;
+  patient_phone?: string;
   doctor_name?: string;
   department_name?: string;
   clinic_name?: string;
@@ -18,6 +20,10 @@ type HistoryRow = {
   scheduled_start_time?: string;
   status?: string;
   appointment_type?: string;
+  appointment_created_by?: string | null;
+  appointment_approved_by?: string | null;
+  appointment_rescheduled_by?: string | null;
+  appointment_cancelled_by?: string | null;
 };
 
 function HistoryStatusFilter() {
@@ -105,13 +111,21 @@ export default function HistoryTab() {
 
   const columns: Column<HistoryRow>[] = useMemo(
     () => [
-      { header: "Patient", accessor: "patient_name" },
+      {
+        header: "Patient",
+        accessor: (row) => (
+          <span>
+            {row.patient_name ?? "—"}
+            {row.patient_phone ? <span className="text-muted-foreground text-xs block mt-0.5">{row.patient_phone}</span> : null}
+          </span>
+        ),
+      },
       { header: "Doctor", accessor: "doctor_name" },
       { header: "Department", accessor: "department_name" },
       { header: "Clinic", accessor: "clinic_name" },
       { header: "Date", accessor: "appointment_date" },
       { header: "Time", accessor: "scheduled_start_time" },
-      { header: "Status", accessor: "status" },
+      { header: "Status", accessor: "status", expandable: (row) => <AppointmentTableExpandable row={row} /> },
       { header: "Type", accessor: "appointment_type" },
     ],
     []

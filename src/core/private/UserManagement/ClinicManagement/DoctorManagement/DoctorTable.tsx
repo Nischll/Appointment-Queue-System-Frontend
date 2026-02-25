@@ -70,8 +70,7 @@ const DoctorTable = ({ departmentId }: Props) => {
 
     const { data, refetch, isLoading } = useGetDoctor(departmentId);
     const doctors: Doctor[] = data?.data || [];
-    
-    // Get clinic and department names from doctor data (if available)
+
     const clinicName = doctors.length > 0 ? doctors[0]?.clinic_name : null;
     const departmentName = doctors.length > 0 ? doctors[0]?.department_name : null;
 
@@ -88,7 +87,6 @@ const DoctorTable = ({ departmentId }: Props) => {
         },
     });
 
-    /* Reset when department or selected doctor changes */
     useEffect(() => {
         form.reset({
             department_id: departmentId,
@@ -98,7 +96,6 @@ const DoctorTable = ({ departmentId }: Props) => {
         });
     }, [departmentId, selectedDoctor, form]);
 
-    /* ================= HANDLERS ================= */
 
     const handleAddDoctor = () => {
         setMode("add");
@@ -161,14 +158,12 @@ const DoctorTable = ({ departmentId }: Props) => {
         });
     };
 
-    /* Filter doctors to ensure they have IDs */
     const filteredDoctors = doctors.filter(
         (doctor): doctor is Doctor & { id: number | string } => {
             return !!doctor.id;
         }
     );
 
-    /* ================= TABLE COLUMNS ================= */
     const columns: Column<Doctor & { id: number | string }>[] = [
         {
             header: "Doctor Name",
@@ -299,11 +294,9 @@ const DoctorTable = ({ departmentId }: Props) => {
         },
     ];
 
-    /* ================= UI ================= */
 
     return (
         <div className="space-y-2">
-            {/* Header with integrated breadcrumb */}
             <div className="flex justify-between items-start px-1">
                 <div className="flex items-start gap-3 flex-1">
                     <div className="h-8 w-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 flex-shrink-0">
@@ -313,7 +306,6 @@ const DoctorTable = ({ departmentId }: Props) => {
                         <h2 className="text-xl font-semibold tracking-tight text-foreground">
                             Doctors
                         </h2>
-                        {/* Integrated breadcrumb in description area */}
                         {(clinicName || departmentName) ? (
                             <div className="flex items-center gap-2 text-sm text-muted-foreground mt-0.5 flex-wrap">
                                 <div className="flex items-center gap-1.5">
@@ -335,8 +327,7 @@ const DoctorTable = ({ departmentId }: Props) => {
                         )}
                     </div>
                 </div>
-                
-                {/* Add Doctor Button - Improved UI */}
+
                 <Card
                     onClick={handleAddDoctor}
                     className={cn(
@@ -358,7 +349,6 @@ const DoctorTable = ({ departmentId }: Props) => {
                 </Card>
             </div>
 
-            {/* Doctors Table */}
             {isLoading ? (
                 <div className="border rounded-lg p-6">
                     <div className="space-y-4">
@@ -420,7 +410,6 @@ const DoctorTable = ({ departmentId }: Props) => {
                 </Card>
             )}
 
-            {/* ================= DIALOG ================= */}
 
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent className="sm:max-w-[600px]">
@@ -550,7 +539,6 @@ const DoctorTable = ({ departmentId }: Props) => {
                 </DialogContent>
             </Dialog>
 
-            {/* Doctor Shift Dialog */}
             {selectedDoctor && (
                 <DoctorShiftDialog
                     open={openShift}
@@ -565,7 +553,6 @@ const DoctorTable = ({ departmentId }: Props) => {
                 />
             )}
 
-            {/* Delete confirmation */}
             <ConfirmModal
                 open={deleteConfirmOpen}
                 title="Delete doctor"

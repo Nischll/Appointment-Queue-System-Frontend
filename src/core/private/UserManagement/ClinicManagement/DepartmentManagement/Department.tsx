@@ -253,7 +253,7 @@ const Department = ({ clinicId, onSelectDepartment }: DepartmentProps) => {
                                     </h3>
                                 </div>
 
-                              
+
                             </CardContent>
                         </Card>
                     ))}

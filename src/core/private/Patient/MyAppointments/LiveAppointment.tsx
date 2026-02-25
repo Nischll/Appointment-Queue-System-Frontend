@@ -163,6 +163,35 @@ function LiveAppointmentCard({
           </div>
         )}
 
+        {(appt.appointment_created_by ?? appt.appointment_approved_by ?? appt.appointment_rescheduled_by ?? appt.appointment_cancelled_by) && (
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
+            {appt.appointment_created_by && (
+              <div>
+                <p className="text-muted-foreground">Created by</p>
+                <p className="font-medium">{appt.appointment_created_by}</p>
+              </div>
+            )}
+            {appt.appointment_approved_by && (
+              <div>
+                <p className="text-muted-foreground">Approved by</p>
+                <p className="font-medium">{appt.appointment_approved_by}</p>
+              </div>
+            )}
+            {appt.appointment_rescheduled_by && (
+              <div>
+                <p className="text-muted-foreground">Rescheduled by</p>
+                <p className="font-medium">{appt.appointment_rescheduled_by}</p>
+              </div>
+            )}
+            {appt.appointment_cancelled_by && (
+              <div>
+                <p className="text-muted-foreground">Cancelled by</p>
+                <p className="font-medium">{appt.appointment_cancelled_by}</p>
+              </div>
+            )}
+          </div>
+        )}
+
         {appt.notes && (
           <div className="mt-4 p-4 bg-muted/50 rounded-lg">
             <div className="flex items-start gap-2">
@@ -214,8 +243,9 @@ export default function LiveAppointment() {
   const activeIndex = list.findIndex(
     (item: any) => ACTIVE_STATUSES.includes((item.appointment ?? item).status)
   );
-  const activeItem = activeIndex >= 0 ? list[activeIndex] : list[0];
-  const otherItems = list.filter((_, i) => i !== activeIndex);
+  const primaryIndex = activeIndex >= 0 ? activeIndex : 0;
+  const activeItem = list[primaryIndex];
+  const otherItems = list.filter((_, i) => i !== primaryIndex);
 
   const normalize = (item: any) =>
     item?.appointment != null

@@ -1,25 +1,22 @@
 import { useEffect } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import {
-    useGetClinic,
+    useGetClinicsByStaff,
     useGetDepartment,
     useGetDoctor,
 } from "@/components/ApiCall/Api";
+import { useAuth } from "@/components/ContextApi/AuthContext";
 import { Label } from "@/components/ui/label";
 
-/**
- * Cascading filter: only Clinic API on load.
- * Department API runs only after user selects a clinic.
- * Doctor API runs only after user selects a department.
- */
 const AppointmentFilter = () => {
     const { register, control, setValue } = useFormContext();
+    const { user } = useAuth();
+    const staffId = user?.userId;
 
     const clinicId = useWatch({ control, name: "clinicId" });
     const departmentId = useWatch({ control, name: "departmentId" });
 
-    // Clinic: always fetched on mount
-    const { data: clinicData } = useGetClinic();
+    const { data: clinicData } = useGetClinicsByStaff(staffId);
     // Department: only when clinic is selected
     const { data: departmentData } = useGetDepartment(clinicId);
     // Doctor: only when department is selected
@@ -38,7 +35,6 @@ const AppointmentFilter = () => {
 
     return (
         <>
-            {/* Clinic — fetched on load */}
             <div>
                 <Label>Clinic</Label>
                 <select
@@ -54,7 +50,6 @@ const AppointmentFilter = () => {
                 </select>
             </div>
 
-            {/* Department — fetched only after clinic selected */}
             <div>
                 <Label>Department</Label>
                 <select
@@ -71,7 +66,6 @@ const AppointmentFilter = () => {
                 </select>
             </div>
 
-            {/* Doctor — fetched only after department selected */}
             <div>
                 <Label>Doctor</Label>
                 <select

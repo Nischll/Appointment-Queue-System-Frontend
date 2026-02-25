@@ -134,7 +134,6 @@ export const patientProfileUpdateSchema = z
     }
   );
 
-/** Matches backend Joi: min 8, at least one letter and one number */
 export const changePasswordSchema = z
   .object({
     old_password: z.string().min(1, "Current password is required."),

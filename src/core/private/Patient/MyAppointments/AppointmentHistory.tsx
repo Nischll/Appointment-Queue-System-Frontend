@@ -14,6 +14,7 @@ import Table, { Column } from "@/components/ui/table";
 import { useGetPatientAppointmentHistory } from "@/components/ApiCall/Api";
 import { Appointment, AppointmentStatus } from "./appointmentTypes";
 import { getStatusBadge } from "./utils";
+import { AppointmentTableExpandable } from "@/core/private/AppointmentMangement/AppointmentTableExpandable";
 import { Calendar, Clock, Building2, User, Layers, Filter, AlertCircle, Hash, FileText, Tag } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -37,7 +38,6 @@ export default function AppointmentHistory() {
   const [limit, setLimit] = useState(10);
   const [hasSearched, setHasSearched] = useState(false);
 
-  // Only enable query when date range is provided and search has been triggered
   const shouldFetch = !!(hasSearched && dateFrom && dateTo);
 
   const { data, isLoading, refetch } = useGetPatientAppointmentHistory(
@@ -50,7 +50,6 @@ export default function AppointmentHistory() {
   );
 
   const appointments: Appointment[] = data?.data?.data || [];
-  // Extract pagination info - API uses pagination object
   const paginationInfo = (data?.data as any)?.pagination;
   const totalItems = paginationInfo?.total ?? data?.data?.total ?? 0;
 
@@ -78,6 +77,10 @@ export default function AppointmentHistory() {
           </span>
         </div>
       ),
+    },
+    {
+      header: "Phone",
+      accessor: "patient_phone",
     },
     {
       header: "Clinic",
@@ -141,6 +144,7 @@ export default function AppointmentHistory() {
     {
       header: "Status",
       accessor: (appointment) => getStatusBadge(appointment.status as AppointmentStatus),
+      expandable: (appointment) => <AppointmentTableExpandable row={appointment} />,
     },
     {
       header: "Notes",
@@ -160,7 +164,7 @@ export default function AppointmentHistory() {
 
   const handleFilter = () => {
     if (!dateFrom || !dateTo) {
-      return; // Date range is required
+      return;
     }
     setHasSearched(true);
     setPage(1);
@@ -247,8 +251,8 @@ export default function AppointmentHistory() {
                 </Select>
               </div>
               <div className="flex items-end gap-2">
-                <Button 
-                  onClick={handleFilter} 
+                <Button
+                  onClick={handleFilter}
                   className="flex-1"
                   disabled={!isDateRangeValid}
                 >

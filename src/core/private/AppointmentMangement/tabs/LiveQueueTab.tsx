@@ -12,10 +12,11 @@ import {
   useCancelAppointment,
   useNoShowAppointment,
   useGetDoctor,
-  useGetClinic,
+  useGetClinicsByStaff,
   useGetDepartment,
   useGetDoctorShift,
 } from "@/components/ApiCall/Api";
+import { useAuth } from "@/components/ContextApi/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -129,15 +130,31 @@ function LiveCard({
   return (
     <Card className={highlight ? "ring-2 ring-primary bg-primary/5" : ""}>
       <CardHeader className="pb-2">
-        <CardTitle className="text-base flex justify-between items-center gap-2">
-          <span className="flex items-center gap-2">
-            <User className="h-4 w-4 text-muted-foreground" />
-            {appt.patient_name ?? "—"}
+        <div className="flex items-start justify-between gap-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <User className="h-4 w-4 text-muted-foreground shrink-0" />
+            <span>{appt.patient_name ?? "—"}</span>
+          </CardTitle>
+          <span
+            className="shrink-0 rounded-full bg-primary px-3 py-1 text-sm font-bold tabular-nums text-primary-foreground"
+            title="Queue position"
+          >
+            #{queueNum}
           </span>
-          <span className="text-muted-foreground font-normal tabular-nums">#{queueNum}</span>
-        </CardTitle>
+        </div>
       </CardHeader>
-      <CardContent className="space-y-2 text-sm">
+      <CardContent className="space-y-3 text-sm">
+        {waitMins != null && (
+          <div className="rounded-lg border-2 border-primary/30 bg-primary/10 px-4 py-3 text-center">
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Est. wait</p>
+            <p className="text-2xl font-bold tabular-nums text-primary">{waitMins} min</p>
+            {confidence != null && (
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                {typeof confidence === "number" ? `${Math.round(confidence * 100)}%` : String(confidence)} confidence
+              </p>
+            )}
+          </div>
+        )}
         <div className="flex justify-between gap-2">
           <span className="text-muted-foreground">Status</span>
           <span className="font-medium">{STATUS_LABEL[status] ?? status}</span>
@@ -150,13 +167,7 @@ function LiveCard({
           <span className="text-muted-foreground">Time</span>
           <span>{appt.scheduled_start_time ?? "—"}</span>
         </div>
-        {waitMins != null && (
-          <div className="flex justify-between gap-2">
-            <span className="text-muted-foreground">Est. wait</span>
-            <span className="tabular-nums">{waitMins} min</span>
-          </div>
-        )}
-        {confidence != null && (
+        {waitMins == null && confidence != null && (
           <div className="flex justify-between gap-2">
             <span className="text-muted-foreground">Confidence</span>
             <span className="tabular-nums">{typeof confidence === "number" ? `${Math.round(confidence * 100)}%` : String(confidence)}</span>
@@ -459,11 +470,10 @@ function AppointmentDetailsDialog({
   const appt = item?.appointment ?? item;
   const prediction = item?.prediction;
   const status = appt?.status;
-  // Update and cancel allowed only up to CHECKED_IN; once started (IN_PROGRESS) or beyond, disallow
   const canUpdate = [AppointmentStatusEnum.REQUESTED, AppointmentStatusEnum.BOOKED, AppointmentStatusEnum.CHECKED_IN].includes(status ?? "");
   const canReschedule = [AppointmentStatusEnum.REQUESTED, AppointmentStatusEnum.BOOKED, AppointmentStatusEnum.CHECKED_IN].includes(status);
   const canCancel = [AppointmentStatusEnum.REQUESTED, AppointmentStatusEnum.BOOKED, AppointmentStatusEnum.CHECKED_IN].includes(status ?? "");
-  const canNoShow = [AppointmentStatusEnum.BOOKED, AppointmentStatusEnum.CHECKED_IN].includes(status);
+  const canNoShow = status === AppointmentStatusEnum.BOOKED;
 
   const estWait = prediction?.predicted_wait_minutes ?? appt?.estimated_wait_minutes;
   const expl = prediction?.explanation;
@@ -476,6 +486,7 @@ function AppointmentDetailsDialog({
         </DialogHeader>
         <div className="grid gap-2 py-4 text-sm">
           <DetailRow label="Patient" value={appt?.patient_name} />
+          <DetailRow label="Patient Phone" value={appt?.patient_phone} />
           <DetailRow label="Doctor" value={appt?.doctor_name} />
           <DetailRow label="Clinic" value={appt?.clinic_name} />
           <DetailRow label="Department" value={appt?.department_name} />
@@ -491,6 +502,7 @@ function AppointmentDetailsDialog({
           <DetailRow label="Actual end" value={appt?.actual_end_time} />
           <DetailRow label="Created by" value={appt?.appointment_created_by} />
           <DetailRow label="Approved by" value={appt?.appointment_approved_by} />
+          <DetailRow label="Rescheduled by" value={appt?.appointment_rescheduled_by} />
           <DetailRow label="Cancelled by" value={appt?.appointment_cancelled_by} />
           <DetailRow label="Cancellation reason" value={appt?.cancellation_reason} />
           {appt?.notes && <DetailRow label="Notes" value={appt.notes} />}
@@ -567,7 +579,8 @@ function UpdateAppointmentDialog({
   const [notes, setNotes] = useState(appt?.notes ?? "");
   const [is_walk_in, setIs_walk_in] = useState(!!appt?.is_walk_in);
   const updateMutation = useUpdateAppointment(appt?.id);
-  const { data: clinicData } = useGetClinic();
+  const { user } = useAuth();
+  const { data: clinicData } = useGetClinicsByStaff(user?.userId);
   const { data: departmentData } = useGetDepartment(clinic_id || undefined);
   const { data: doctorData } = useGetDoctor(department_id || undefined);
   const { data: shiftData } = useGetDoctorShift(doctor_id || undefined, department_id || undefined);
@@ -666,7 +679,8 @@ function RescheduleLiveDialog({
   const [department_id, setDepartment_id] = useState<number | "">(appt?.department_id ?? "");
   const [doctor_id, setDoctor_id] = useState<number | "">(appt?.doctor_id ?? "");
   const reschedule = useRescheduleAppointment(appt?.id);
-  const { data: clinicData } = useGetClinic();
+  const { user } = useAuth();
+  const { data: clinicData } = useGetClinicsByStaff(user?.userId);
   const { data: departmentData } = useGetDepartment(clinic_id || undefined);
   const { data: doctorData } = useGetDoctor(department_id || undefined);
   const effectiveDoctorId = doctor_id === "" ? appt?.doctor_id : doctor_id;

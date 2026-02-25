@@ -14,10 +14,11 @@ import { Button } from "@/components/ui/button";
 import {
     useGetPatient,
     useGetPatientById,
-    useGetClinic,
+    useGetClinicsByStaff,
     useGetDepartment,
     useGetDoctor, useAddAppointment,
 } from "@/components/ApiCall/Api";
+import { useAuth } from "@/components/ContextApi/AuthContext";
 import { AppointmentTypeEnum } from "@/enums/AppointmentEnum";
 import { NiceSelect } from "@/components/ui/NiceSelect";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -55,10 +56,11 @@ const AddAppointment = () => {
     const clinicId = watch("clinic_id");
     const departmentId = watch("department_id");
 
+    const { user } = useAuth();
     const { data: patientList, refetch: refetchPateient } = useGetPatient();
     const { data: patientDetails } = useGetPatientById(selectedPatientId);
 
-    const { data: clinicData } = useGetClinic();
+    const { data: clinicData } = useGetClinicsByStaff(user?.userId);
     const { data: departmentData } = useGetDepartment(clinicId);
     const { data: doctorData } = useGetDoctor(departmentId);
     const save = useAddAppointment()

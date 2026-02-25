@@ -16,7 +16,6 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
-/* ================= TYPES ================= */
 export interface Permission {
   id: number;
   name: string;
@@ -27,7 +26,6 @@ export interface Permission {
   canDelete: boolean;
 }
 
-/* ================= COMPONENT ================= */
 const PermissionTable = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -44,7 +42,6 @@ const PermissionTable = () => {
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [hasChanges, setHasChanges] = useState(false);
 
-  /* Populate permissions */
   useEffect(() => {
     if (data?.data) {
       const mappedPermissions: Permission[] = data.data.map((item: any) => ({
@@ -62,7 +59,6 @@ const PermissionTable = () => {
     }
   }, [data]);
 
-  /* Toggle single checkbox */
   const handleCheckboxChange = (
     permissionId: number,
     field: keyof Permission,
@@ -75,7 +71,6 @@ const PermissionTable = () => {
     setHasChanges(true);
   };
 
-  /* Select All (row-wise) */
   const handleSelectAllToggle = (permissionId: number) => {
     setPermissions((prev) =>
       prev.map((item) => {
@@ -96,7 +91,6 @@ const PermissionTable = () => {
     setHasChanges(true);
   };
 
-  /* Save */
   const handleSaveChanges = () => {
     const payload = permissions.map((p) => ({
       module_id: p.id,
@@ -105,15 +99,13 @@ const PermissionTable = () => {
       canUpdate: p.canUpdate,
       canDelete: p.canDelete,
     }));
-    
+
     updatePermissions.mutate(payload, {
       onSuccess: () => {
-        // Invalidate and refetch permissions query
         const endpoint = API_ENDPOINTS.ROLE.GET_PERMISSIONS(roleId);
         queryClient.invalidateQueries({
           queryKey: [endpoint],
         });
-        // Also refetch directly to ensure fresh data
         refetch();
         navigate("/role-management");
       },
@@ -163,9 +155,9 @@ const PermissionTable = () => {
         </div>
 
         <div className="flex gap-3">
-          <Button 
-            size="sm" 
-            variant="outline" 
+          <Button
+            size="sm"
+            variant="outline"
             onClick={() => navigate(-1)}
             className="gap-2"
           >
@@ -173,7 +165,7 @@ const PermissionTable = () => {
             Back
           </Button>
 
-          <Button 
+          <Button
             onClick={handleSaveChanges}
             disabled={!hasChanges || updatePermissions.isPending}
             className="gap-2"

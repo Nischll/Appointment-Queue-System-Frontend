@@ -4,20 +4,34 @@ import Table, { Column } from "@/components/ui/table";
 import { useGetPatientUpcomingAppointments } from "@/components/ApiCall/Api";
 import { Appointment, AppointmentStatus } from "./appointmentTypes";
 import { getStatusBadge } from "./utils";
+import { AppointmentTableExpandable } from "@/core/private/AppointmentMangement/AppointmentTableExpandable";
 import { Calendar, Clock, Building2, User, Layers } from "lucide-react";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+type UpcomingStatusTab = "REQUESTED" | "BOOKED" | "REJECTED";
 
 export default function UpcomingAppointments() {
-  const [status, setStatus] = useState<"REQUESTED" | "BOOKED">("REQUESTED");
+  const [status, setStatus] = useState<UpcomingStatusTab>("REQUESTED");
 
   const { data: requestedData, isLoading: requestedLoading } =
     useGetPatientUpcomingAppointments("REQUESTED");
   const { data: bookedData, isLoading: bookedLoading } =
     useGetPatientUpcomingAppointments("BOOKED");
+  const { data: rejectedData, isLoading: rejectedLoading } =
+    useGetPatientUpcomingAppointments("REJECTED");
 
-  const appointments: Appointment[] =
-    (status === "REQUESTED" ? requestedData?.data : bookedData?.data) || [];
-  const isLoading = status === "REQUESTED" ? requestedLoading : bookedLoading;
+  const appointmentsByStatus: Record<UpcomingStatusTab, Appointment[] | undefined> = {
+    REQUESTED: requestedData?.data,
+    BOOKED: bookedData?.data,
+    REJECTED: rejectedData?.data,
+  };
+  const loadingByStatus: Record<UpcomingStatusTab, boolean> = {
+    REQUESTED: requestedLoading,
+    BOOKED: bookedLoading,
+    REJECTED: rejectedLoading,
+  };
+  const appointments: Appointment[] = appointmentsByStatus[status] || [];
+  const isLoading = loadingByStatus[status];
 
   const columns: Column<Appointment>[] = [
     {
@@ -37,6 +51,10 @@ export default function UpcomingAppointments() {
           <span>{appointment.preferred_time}</span>
         </div>
       ),
+    },
+    {
+      header: "Phone",
+      accessor: "patient_phone",
     },
     {
       header: "Clinic",
@@ -74,15 +92,17 @@ export default function UpcomingAppointments() {
     {
       header: "Status",
       accessor: (appointment) => getStatusBadge(appointment.status as AppointmentStatus),
+      expandable: (appointment) => <AppointmentTableExpandable row={appointment} />,
     },
   ];
 
   return (
     <div className="space-y-4">
-      <Tabs value={status} onValueChange={(v) => setStatus(v as "REQUESTED" | "BOOKED")}>
+      <Tabs value={status} onValueChange={(v) => setStatus(v as UpcomingStatusTab)}>
         <TabsList>
           <TabsTrigger value="REQUESTED">Requested</TabsTrigger>
           <TabsTrigger value="BOOKED">Booked</TabsTrigger>
+          <TabsTrigger value="REJECTED">Rejected</TabsTrigger>
         </TabsList>
       </Tabs>
 

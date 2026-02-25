@@ -40,9 +40,9 @@ export interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
-  login: () => {},
-  logout: () => {},
-  refetchInit: () => {},
+  login: () => { },
+  logout: () => { },
+  refetchInit: () => { },
   user: null,
   loading: true,
 });

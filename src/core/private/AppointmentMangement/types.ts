@@ -3,6 +3,7 @@ export interface AppointmentRow {
   id: number;
   patient_id?: number;
   patient_name?: string;
+  patient_phone?: string;
   appointment_date?: string;
   scheduled_start_time?: string | null;
   status: string;
@@ -23,6 +24,10 @@ export interface AppointmentRow {
   completed_at?: string | null;
   created_at?: string;
   updated_at?: string;
+  appointment_created_by?: string | null;
+  appointment_approved_by?: string | null;
+  appointment_cancelled_by?: string | null;
+  appointment_rescheduled_by?: string | null;
 }
 
 /** Live API returns appointment with queue info */

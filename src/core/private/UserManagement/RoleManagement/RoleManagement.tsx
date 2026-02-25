@@ -48,7 +48,6 @@ const RoleManagement = () => {
     },
   });
   const navigate = useNavigate();
-  /* Populate form on edit */
   useEffect(() => {
     if (mode === "edit" && selectedRole) {
       form.reset({

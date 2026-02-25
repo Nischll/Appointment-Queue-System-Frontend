@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -8,12 +8,13 @@ import { Button } from "@/components/ui/button";
 import {
   useGetPatient,
   useGetPatientById,
-  useGetClinic,
+  useGetClinicsByStaff,
   useGetDepartment,
   useGetDoctor,
   useGetDoctorShift,
   useBookAppointment,
 } from "@/components/ApiCall/Api";
+import { useAuth } from "@/components/ContextApi/AuthContext";
 import { AppointmentTypeEnum } from "@/enums/AppointmentEnum";
 import { NiceSelect } from "@/components/ui/NiceSelect";
 import { useNavigate } from "react-router-dom";
@@ -34,9 +35,10 @@ export default function BookAppointmentTab() {
   const doctorId = watch.doctor_id;
   const appointmentDate = watch.appointment_date;
 
+  const { user } = useAuth();
   const { data: patientList } = useGetPatient();
   const { data: patientDetails } = useGetPatientById(selectedPatientId);
-  const { data: clinicData } = useGetClinic();
+  const { data: clinicData } = useGetClinicsByStaff(user?.userId);
   const { data: departmentData } = useGetDepartment(clinicId);
   const { data: doctorData } = useGetDoctor(departmentId);
   const { data: shiftData } = useGetDoctorShift(doctorId, departmentId);

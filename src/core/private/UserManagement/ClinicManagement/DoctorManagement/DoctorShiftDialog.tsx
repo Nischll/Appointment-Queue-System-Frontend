@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useState} from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
     Dialog,
     DialogContent,
@@ -15,7 +15,6 @@ import {
 } from "@/components/ApiCall/Api.ts";
 import { Doctor } from "./doctorTypes";
 
-/* ---------- TYPES ---------- */
 
 const toAmPm = (time24: string): string => {
     if (!time24) return "";
@@ -27,11 +26,9 @@ const toAmPm = (time24: string): string => {
     return `${hours}:${m.toString().padStart(2, "0")} ${modifier}`;
 };
 
-// ✅ ADDED (DB → input[type=time])
 const to24Hour = (time?: string | null): string => {
     if (!time) return "";
 
-    // Handles "2:16 PM"
     const [timePart, modifier] = time.split(" ");
     let [hours, minutes] = timePart.split(":").map(Number);
 
@@ -52,7 +49,7 @@ type ApiDoctorShift = {
 };
 
 type Shift = {
-    id?: number; // required when updating; omit for new shifts
+    id?: number;
     start_time: string;
     end_time: string;
     is_day_off: boolean;
@@ -63,8 +60,6 @@ type DayShift = {
     shifts: Shift[];
 };
 
-/* ---------- CONSTANTS ---------- */
-// Backend: day_of_week 0 = Sunday, 6 = Saturday
 const DAYS = [
     { id: 0, label: "Sunday" },
     { id: 1, label: "Monday" },
@@ -75,14 +70,12 @@ const DAYS = [
     { id: 6, label: "Saturday" },
 ];
 
-/* ---------- COMPONENT ---------- */
-
 const DoctorShiftDialog = ({
-                               open,
-                               onClose,
-                               doctor,
-                               onSuccess,
-                           }: {
+    open,
+    onClose,
+    doctor,
+    onSuccess,
+}: {
     open: boolean;
     onClose: () => void;
     doctor: Doctor;
@@ -93,7 +86,6 @@ const DoctorShiftDialog = ({
         doctor.department_id
     );
 
-    // ✅ ADDED
     const { data } = useGetDoctorShift(
         doctor.id,
         doctor.department_id
@@ -108,7 +100,6 @@ const DoctorShiftDialog = ({
 
     const [days, setDays] = useState<DayShift[]>([]);
 
-    /* ---------- INIT (WITH PREFILL) ---------- */
     useEffect(() => {
         const baseDays: DayShift[] = DAYS.map((d) => ({
             day_of_week: d.id,
@@ -116,7 +107,6 @@ const DoctorShiftDialog = ({
         }));
 
         if (savedShifts.length === 0) {
-            // 👇 No data → show one empty shift per day
             baseDays.forEach((day) => {
                 day.shifts.push({
                     start_time: "",
@@ -129,7 +119,6 @@ const DoctorShiftDialog = ({
             return;
         }
 
-        // 👇 Prefill from API
         for (const day of baseDays) {
             const shiftsForDay = savedShifts.filter(
                 (s) => s.day_of_week === day.day_of_week
@@ -157,8 +146,6 @@ const DoctorShiftDialog = ({
     }, [doctor.id, doctor.department_id, savedShifts]);
 
 
-    /* ---------- HANDLERS ---------- */
-
     const toggleDayOff = (day: number) => {
         setDays((prev) =>
             prev.map((d) => {
@@ -166,7 +153,6 @@ const DoctorShiftDialog = ({
 
                 const isCurrentlyDayOff = d.shifts[0]?.is_day_off;
 
-                // 🔁 Reverse: Day Off → Working day (keep id if existed)
                 if (isCurrentlyDayOff) {
                     const existingId = d.shifts[0]?.id;
                     return {
@@ -182,7 +168,6 @@ const DoctorShiftDialog = ({
                     };
                 }
 
-                // 🚫 Working day → Day Off (keep id if existed)
                 const existingId = d.shifts[0]?.id;
                 return {
                     ...d,
@@ -249,7 +234,6 @@ const DoctorShiftDialog = ({
         );
     };
 
-    /* ---------- SAVE ---------- */
 
     const handleSave = () => {
         const shifts = days.flatMap((d) =>
@@ -289,7 +273,6 @@ const DoctorShiftDialog = ({
         );
     };
 
-    /* ---------- UI ---------- */
 
     return (
         <Dialog open={open} onOpenChange={onClose}>

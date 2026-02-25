@@ -21,10 +21,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import { API_ENDPOINTS } from "@/components/constants/ApiEndpoints/apiEndpoints";
 import type { FollowUpAppointmentBody } from "../types";
 import { DAY_NAMES, getDoctorShiftSummary, isDoctorUnavailable } from "../doctorAvailability";
+import { AppointmentTableExpandable } from "../AppointmentTableExpandable";
 
 type CompletedRow = {
   id: number;
   patient_name?: string;
+  patient_phone?: string;
   doctor_name?: string;
   department_name?: string;
   department_id?: number;
@@ -34,6 +36,10 @@ type CompletedRow = {
   status?: string;
   appointment_type?: string;
   doctor_id?: number;
+  appointment_created_by?: string | null;
+  appointment_approved_by?: string | null;
+  appointment_rescheduled_by?: string | null;
+  appointment_cancelled_by?: string | null;
 };
 
 export default function CompletedTab() {
@@ -75,13 +81,21 @@ export default function CompletedTab() {
 
   const columns: Column<CompletedRow>[] = useMemo(
     () => [
-      { header: "Patient", accessor: "patient_name" },
+      {
+        header: "Patient",
+        accessor: (row) => (
+          <span>
+            {row.patient_name ?? "—"}
+            {row.patient_phone ? <span className="text-muted-foreground text-xs block mt-0.5">{row.patient_phone}</span> : null}
+          </span>
+        ),
+      },
       { header: "Doctor", accessor: "doctor_name" },
       { header: "Department", accessor: "department_name" },
       { header: "Clinic", accessor: "clinic_name" },
       { header: "Date", accessor: "appointment_date" },
       { header: "Time", accessor: "scheduled_start_time" },
-      { header: "Type", accessor: "appointment_type" },
+      { header: "Type", accessor: "appointment_type", expandable: (row) => <AppointmentTableExpandable row={row} /> },
       {
         header: "Actions",
         accessor: (row) => (

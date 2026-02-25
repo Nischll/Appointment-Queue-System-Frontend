@@ -88,7 +88,6 @@ function Table<T extends { id: number | string }>({
   selectedRowIds = [],
   onSelectionChange,
 }: TableProps<T>) {
-  /* ✅ NORMALIZE DATA HERE */
   const tableData = useMemo<T[]>(() => {
     if (Array.isArray(data)) return data;
 
@@ -119,6 +118,17 @@ function Table<T extends { id: number | string }>({
   const toggleRow = (id: T["id"]) => {
     setExpandedRowId((prev) => (prev === id ? null : id));
   };
+
+  const hasActionsColumnInColumns = columns.some(
+    (col) => col.header === "Actions"
+  );
+  const hasExpandable = columns.some((col) => col.expandable);
+  const showDedicatedActionsColumn =
+    onEdit ||
+    onDelete ||
+    onView ||
+    onApprove ||
+    (hasExpandable && !hasActionsColumnInColumns);
 
   useEffect(() => {
     if (itemsPerPage && itemsPerPage !== pageSize) {
@@ -325,14 +335,16 @@ function Table<T extends { id: number | string }>({
             <FaShieldAlt />
           </button>
         )}
-        {/* Expand/Collapse toggle */}
-        {columns.some((col) => col.expandable) && (
+        {/* Expand/Collapse toggle — only in dedicated actions column */}
+        {hasExpandable && showDedicatedActionsColumn && (
           <button
+            type="button"
             onClick={() => toggleRow(row.id)}
-            className={`text-gray-600 rounded hover:bg-gray-100 transition ${btnClass}`}
-            title={expandedRowId === row.id ? "Collapse" : "Expand"}
+            className="inline-flex items-center justify-center min-w-[2rem] h-8 px-2 rounded-md border border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-100 hover:border-gray-400 transition shadow-sm"
+            title={expandedRowId === row.id ? "Collapse details" : "Expand details"}
+            aria-label={expandedRowId === row.id ? "Collapse details" : "Expand details"}
           >
-            {expandedRowId === row.id ? "▲" : "▼"}
+            <span className="tabular-nums font-medium">{expandedRowId === row.id ? "▲" : "▼"}</span>
           </button>
         )}
       </div>
@@ -386,9 +398,9 @@ function Table<T extends { id: number | string }>({
     // For backend pagination, always show pagination info even if only 1 page
     // For frontend pagination, only show if more than 1 page
     const shouldShow = isBackend ? totalPages >= 1 : totalPages > 1;
-    
+
     if (!shouldShow) return null;
-    
+
     return (
       <div className="flex flex-col items-center gap-3 py-4">
         {/* Page info */}
@@ -404,11 +416,10 @@ function Table<T extends { id: number | string }>({
             disabled={currentPageNumber === 1}
             onClick={() => handlePageChange(1)}
             className={`px-2 py-1 text-sm rounded border transition
-            ${
-              currentPageNumber === 1
+            ${currentPageNumber === 1
                 ? "text-gray-400 border-gray-200 cursor-not-allowed"
                 : "hover:bg-gray-100"
-            }`}
+              }`}
           >
             ⏮
           </button>
@@ -418,11 +429,10 @@ function Table<T extends { id: number | string }>({
             disabled={currentPageNumber === 1}
             onClick={() => handlePageChange(currentPageNumber - 1)}
             className={`px-2 py-1 text-sm rounded border transition
-            ${
-              currentPageNumber === 1
+            ${currentPageNumber === 1
                 ? "text-gray-400 border-gray-200 cursor-not-allowed"
                 : "hover:bg-gray-100"
-            }`}
+              }`}
           >
             ‹
           </button>
@@ -441,11 +451,10 @@ function Table<T extends { id: number | string }>({
                 key={idx}
                 onClick={() => handlePageChange(p)}
                 className={`px-3 py-1 text-sm rounded border transition
-                ${
-                  p === currentPageNumber
+                ${p === currentPageNumber
                     ? "bg-blue-600 text-white border-blue-600 shadow"
                     : "hover:bg-gray-100 text-gray-700 border-gray-300"
-                }`}
+                  }`}
               >
                 {p}
               </button>
@@ -457,11 +466,10 @@ function Table<T extends { id: number | string }>({
             disabled={currentPageNumber === totalPages}
             onClick={() => handlePageChange(currentPageNumber + 1)}
             className={`px-2 py-1 text-sm rounded border transition
-            ${
-              currentPageNumber === totalPages
+            ${currentPageNumber === totalPages
                 ? "text-gray-400 border-gray-200 cursor-not-allowed"
                 : "hover:bg-gray-100"
-            }`}
+              }`}
           >
             ›
           </button>
@@ -471,11 +479,10 @@ function Table<T extends { id: number | string }>({
             disabled={currentPageNumber === totalPages}
             onClick={() => handlePageChange(totalPages)}
             className={`px-2 py-1 text-sm rounded border transition
-            ${
-              currentPageNumber === totalPages
+            ${currentPageNumber === totalPages
                 ? "text-gray-400 border-gray-200 cursor-not-allowed"
                 : "hover:bg-gray-100"
-            }`}
+              }`}
           >
             ⏭
           </button>
@@ -772,9 +779,9 @@ function Table<T extends { id: number | string }>({
           <colgroup>
             <col style={{ width: "4%" }} />
             {columns.map((_, i) => (
-              <col key={i} style={{ width: `${(100 - 4 - (onEdit || onDelete || onView || onApprove ? 6 : 0)) / columns.length}%` }} />
+              <col key={i} style={{ width: `${(100 - 4 - (showDedicatedActionsColumn ? 6 : 0)) / columns.length}%` }} />
             ))}
-            {(onEdit || onDelete || onView || onApprove) && (
+            {showDedicatedActionsColumn && (
               <col style={{ width: "6%" }} />
             )}
           </colgroup>
@@ -799,9 +806,8 @@ function Table<T extends { id: number | string }>({
               return (
                 <th
                   key={i}
-                  className={`py-3 text-left text-sm font-semibold tracking-wider ${
-                    fitToViewport ? "px-2 min-w-0 break-words" : "px-6"
-                  } ${col.className || ""} ${isSortableCol ? "cursor-pointer select-none" : ""}`}
+                  className={`py-3 text-left text-sm font-semibold tracking-wider ${fitToViewport ? "px-2 min-w-0 break-words" : "px-6"
+                    } ${col.className || ""} ${isSortableCol ? "cursor-pointer select-none" : ""}`}
                   onClick={() => {
                     if (isSortableCol && isStringKeyOf<T>(col.accessor)) {
                       handleSort(col.accessor);
@@ -817,7 +823,7 @@ function Table<T extends { id: number | string }>({
                 </th>
               );
             })}
-            {(onEdit || onDelete || onView || onApprove) && (
+            {showDedicatedActionsColumn && (
               <th className={`py-3 text-left text-sm font-semibold tracking-wider ${fitToViewport ? "px-2" : "px-6"}`}
                 style={fitToViewport ? { width: "6%" } : undefined}>
                 Actions
@@ -832,13 +838,7 @@ function Table<T extends { id: number | string }>({
                 colSpan={
                   columns.length +
                   (selectable ? 1 : 0) +
-                  (onEdit ||
-                  onDelete ||
-                  onView ||
-                  onApprove ||
-                  columns.some((col) => col.expandable)
-                    ? 1
-                    : 0)
+                  (showDedicatedActionsColumn ? 1 : 0)
                 }
                 className="px-6 py-8 text-center text-gray-400 italic"
               >
@@ -849,9 +849,8 @@ function Table<T extends { id: number | string }>({
             paginatedData.map((row, index) => (
               <React.Fragment key={row.id}>
                 <tr
-                  className={`transition-colors duration-150 ${
-                    index % 2 === 0 ? "bg-[#F2F8FA]" : "bg-white"
-                  } hover:bg-gray-50`}
+                  className={`transition-colors duration-150 ${index % 2 === 0 ? "bg-[#F2F8FA]" : "bg-white"
+                    } hover:bg-gray-50`}
                 >
                   <td className={`py-4 text-xs text-gray-700 ${fitToViewport ? "px-2 whitespace-nowrap" : "px-6 whitespace-nowrap"}`}>
                     <div className="flex items-center gap-2">
@@ -873,12 +872,29 @@ function Table<T extends { id: number | string }>({
                           ? row[col.accessor]
                           : "-";
 
-                    // const value =
-                    //   React.isValidElement(rawValue)
-                    //     ? rawValue
-                    //     : typeof rawValue === "object" && rawValue !== null
-                    //     ? JSON.stringify(rawValue)
-                    //     : rawValue;
+                    const isActionsCol = col.header === "Actions";
+                    const cellContent =
+                      typeof rawValue === "function"
+                        ? rawValue(row, i)
+                        : React.isValidElement(rawValue)
+                          ? rawValue
+                          : typeof rawValue === "object" && rawValue !== null
+                            ? JSON.stringify(rawValue)
+                            : (rawValue ?? "-");
+
+                    const expandButton =
+                      hasExpandable && isActionsCol ? (
+                        <button
+                          type="button"
+                          onClick={() => toggleRow(row.id)}
+                          className="inline-flex items-center justify-center min-w-[2rem] h-8 px-2 rounded-md border border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-100 hover:border-gray-400 transition shadow-sm"
+                          title={expandedRowId === row.id ? "Collapse details" : "Expand details"}
+                          aria-label={expandedRowId === row.id ? "Collapse details" : "Expand details"}
+                        >
+                          <span className="tabular-nums font-medium">{expandedRowId === row.id ? "▲" : "▼"}</span>
+                        </button>
+                      ) : null;
+
                     return (
                       <td
                         key={i}
@@ -888,22 +904,19 @@ function Table<T extends { id: number | string }>({
                         }
                       >
                         <div className={fitToViewport ? "break-words line-clamp-3" : ""}>
-                          {typeof rawValue === "function"
-                            ? rawValue(row, i)
-                            : React.isValidElement(rawValue)
-                              ? rawValue
-                              : typeof rawValue === "object" && rawValue !== null
-                                ? JSON.stringify(rawValue)
-                                : (rawValue ?? "-")}
+                          {isActionsCol && expandButton ? (
+                            <div className="flex flex-wrap items-center gap-2">
+                              {cellContent}
+                              {expandButton}
+                            </div>
+                          ) : (
+                            cellContent
+                          )}
                         </div>
                       </td>
                     );
                   })}
-                  {(onEdit ||
-                    onDelete ||
-                    onView ||
-                    onApprove ||
-                    columns.some((col) => col.expandable)) && (
+                  {showDedicatedActionsColumn && (
                     <td className={`py-4 text-xs text-gray-700 ${fitToViewport ? "px-2 whitespace-nowrap" : "px-6 whitespace-nowrap"}`}>
                       {renderActions(row, index)}
                     </td>
@@ -913,7 +926,7 @@ function Table<T extends { id: number | string }>({
                 {/* Expandable content row */}
                 {expandedRowId === row.id && (
                   <tr className="bg-gray-50">
-                    <td colSpan={columns.length + 2} className="px-6 py-4">
+                    <td colSpan={1 + columns.length + (showDedicatedActionsColumn ? 1 : 0)} className="px-6 py-4">
                       {columns.map((col, i) =>
                         col.expandable ? (
                           <div key={i} className="mb-2">

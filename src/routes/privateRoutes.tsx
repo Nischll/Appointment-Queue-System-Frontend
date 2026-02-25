@@ -5,9 +5,6 @@ import { lazy } from "react";
 import { Navigate, RouteObject } from "react-router-dom";
 import { DynamicRedirect } from "./dynamicRedirect";
 
-
-
-
 const PrivateLayout = lazy(() => import("../components/layout/MainLayout"));
 const Dashboard = lazy(() => import("../core/private/Dashboard/Dashboard"));
 const Reports = lazy(() => import("../core/private/Reports/Reports"));
@@ -18,14 +15,10 @@ const PatientManagement = lazy(() => import("@/core/private/PatientMangement/Pat
 const AddPatient = lazy(() => import("@/core/private/PatientMangement/AddPatient.tsx"));
 const EditPatient = lazy(() => import("@/core/private/PatientMangement/EditPatient.tsx"));
 const PermissionsTable = lazy(() => import("../core/private/UserManagement/RoleManagement/PermissionTable/PermissionTable.tsx"));
-const Appointment=lazy(()=>import("../core/private/AppointmentMangement/AppointmentTabs.tsx"))
-
+const Appointment = lazy(() => import("../core/private/AppointmentMangement/AppointmentTabs.tsx"))
 const BookAppointmentPage = lazy(() => import("../core/private/AppointmentMangement/BookAppointmentPage.tsx"));
 const MyAppointments = lazy(() => import("../core/private/Patient/MyAppointments/MyAppointments"));
 const ProfilePage = lazy(() => import("../core/private/Profile/ProfilePage"));
-// const Configurations = lazy(
-//   () => import("../core/private/Configurations/Confgurations")
-// );
 
 export const privateRoutes: RouteObject[] = [
   {
@@ -60,57 +53,49 @@ export const privateRoutes: RouteObject[] = [
       {
         path: "/staff-management",
         element: <UserTable />,
-
-
-
       },
-        {
-            path:"role-management",
-            element:< RoleManagement/>
-        },
-        {path:"/role-management/permissions/:id",
-        element:<PermissionsTable/>},
-        {
-            path:"clinic-management",
-            element:<ClinicManagement />
-        },
+      {
+        path: "role-management",
+        element: < RoleManagement />
+      },
+      {
+        path: "/role-management/permissions/:id",
+        element: <PermissionsTable />
+      },
+      {
+        path: "clinic-management",
+        element: <ClinicManagement />
+      },
 
-        {
-            path: "patient-management",
-            element: <PatientManagement />
-        },
-        {
-            path: "patient-management/add",
-            element: <AddPatient />
-        },
-        {
-            path: "patient-management/edit/:id",
-            element: <EditPatient />
-        },
-        {
-            path:"appointment-management",
-            element:<Appointment/>
-        },
-        {
-            path: "appointment-management/book-appointment",
-            element: <BookAppointmentPage />
-        },
-        // Patient Routes
-        {
-            path: "my-appointments",
-            element: <MyAppointments />
-        },
-        {
-            path: "profile",
-            element: <ProfilePage />
-        }
-
-
-
-        // {
-      //   path: "configuarations",
-      //   element: <Configurations />,
-      // },
+      {
+        path: "patient-management",
+        element: <PatientManagement />
+      },
+      {
+        path: "patient-management/add",
+        element: <AddPatient />
+      },
+      {
+        path: "patient-management/edit/:id",
+        element: <EditPatient />
+      },
+      {
+        path: "appointment-management",
+        element: <Appointment />
+      },
+      {
+        path: "appointment-management/book-appointment",
+        element: <BookAppointmentPage />
+      },
+      // Patient Routes
+      {
+        path: "my-appointments",
+        element: <MyAppointments />
+      },
+      {
+        path: "profile",
+        element: <ProfilePage />
+      }
     ],
   },
   {
