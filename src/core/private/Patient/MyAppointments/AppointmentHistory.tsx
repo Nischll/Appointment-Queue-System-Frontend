@@ -20,12 +20,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const STATUS_OPTIONS = [
   { value: "ALL", label: "All Statuses" },
-  { value: AppointmentStatus.REQUESTED, label: "Requested" },
-  { value: AppointmentStatus.REJECTED, label: "Rejected" },
-  { value: AppointmentStatus.BOOKED, label: "Booked" },
-  { value: AppointmentStatus.CHECKED_IN, label: "Checked In" },
-  { value: AppointmentStatus.IN_PROGRESS, label: "In Progress" },
   { value: AppointmentStatus.COMPLETED, label: "Completed" },
+  { value: AppointmentStatus.REJECTED, label: "Rejected" },
   { value: AppointmentStatus.NO_SHOW, label: "No Show" },
   { value: AppointmentStatus.CANCELLED, label: "Cancelled" },
 ];
