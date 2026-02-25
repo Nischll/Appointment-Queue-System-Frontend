@@ -11,6 +11,14 @@ export default {
       lg: "16px",
       xl: "18px",
       "2xl": "20px",
+      "3xl": "24px",
+      "4xl": "28px",
+      "5xl": "32px",
+      "6xl": "36px",
+      "7xl": "40px",
+      "8xl": "44px",
+      "9xl": "48px",
+      "10xl": "52px",
     },
     extend: {
       colors: {
