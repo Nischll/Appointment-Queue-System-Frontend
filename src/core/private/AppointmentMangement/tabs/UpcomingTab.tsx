@@ -27,7 +27,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { API_ENDPOINTS } from "@/components/constants/ApiEndpoints/apiEndpoints";
 import { AppointmentTypeEnum } from "@/enums/AppointmentEnum";
 import type { ApproveAppointmentBody, RejectAppointmentBody, RescheduleAppointmentBody } from "../types";
-import { DAY_NAMES, getDoctorShiftSummary, isDoctorUnavailable } from "../doctorAvailability";
+import { DAY_NAMES, formatTimeForApi, getDoctorShiftSummary, isDoctorUnavailable } from "../doctorAvailability";
 import { AppointmentTableExpandable } from "../AppointmentTableExpandable";
 
 type UpcomingRow = {
@@ -384,7 +384,10 @@ function ApproveDialog({
   }, [body.department_id, doctorData?.data?.length]);
 
   const handleSubmit = () => {
-    approve.mutate(body as any, { onSuccess });
+    approve.mutate({
+      ...body,
+      scheduled_start_time: formatTimeForApi(body.scheduled_start_time) || body.scheduled_start_time,
+    } as any, { onSuccess });
   };
 
   return (
@@ -547,7 +550,10 @@ function RescheduleDialog({
   const doctorShiftSummary = getDoctorShiftSummary(shiftData as any, body.appointment_date, row.doctor_id);
 
   const handleSubmit = () => {
-    reschedule.mutate(body as any, { onSuccess });
+    reschedule.mutate({
+      ...body,
+      scheduled_start_time: formatTimeForApi(body.scheduled_start_time) || body.scheduled_start_time,
+    } as any, { onSuccess });
   };
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

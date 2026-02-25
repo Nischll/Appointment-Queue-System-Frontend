@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input";
 import { useQueryClient } from "@tanstack/react-query";
 import { API_ENDPOINTS } from "@/components/constants/ApiEndpoints/apiEndpoints";
 import type { FollowUpAppointmentBody } from "../types";
-import { DAY_NAMES, getDoctorShiftSummary, isDoctorUnavailable } from "../doctorAvailability";
+import { DAY_NAMES, formatTimeForApi, getDoctorShiftSummary, isDoctorUnavailable } from "../doctorAvailability";
 import { AppointmentTableExpandable } from "../AppointmentTableExpandable";
 
 type CompletedRow = {
@@ -188,7 +188,10 @@ function FollowUpDialog({
   const doctorShiftSummary = getDoctorShiftSummary(shiftData as any, body.appointment_date, effectiveDoctorId);
 
   const handleSubmit = () => {
-    followUp.mutate(body as any, { onSuccess });
+    followUp.mutate({
+      ...body,
+      scheduled_start_time: formatTimeForApi(body.scheduled_start_time) || body.scheduled_start_time,
+    } as any, { onSuccess });
   };
 
   return (

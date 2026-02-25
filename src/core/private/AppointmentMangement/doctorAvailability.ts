@@ -1,5 +1,18 @@
 export const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
+/** Format "HH:mm" (24h) to "10:30 AM" / "2:00 PM" for API. Leaves "H:mm AM/PM" unchanged. */
+export function formatTimeForApi(value: string): string {
+  if (!value) return "";
+  const parts = value.trim().split(/\s+/);
+  const timePart = parts[0] ?? "";
+  const [h, m] = timePart.split(":").map(Number);
+  if (h == null || isNaN(h)) return value;
+  const period = h >= 12 ? "PM" : "AM";
+  const hour = h % 12 || 12;
+  const min = (m != null && !isNaN(m) ? m : 0).toString().padStart(2, "0");
+  return `${hour}:${min} ${period}`;
+}
+
 export function getDayOfWeek(dateStr: string): number {
   if (!dateStr) return -1;
   const d = new Date(dateStr + "T12:00:00");

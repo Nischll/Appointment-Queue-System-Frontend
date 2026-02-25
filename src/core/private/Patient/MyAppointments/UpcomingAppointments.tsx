@@ -39,7 +39,7 @@ export default function UpcomingAppointments() {
       accessor: (appointment) => (
         <div className="flex items-center gap-2">
           <Calendar className="h-4 w-4 text-muted-foreground" />
-          <span className="font-medium">{appointment.preferred_date}</span>
+          <span className="font-medium">{appointment.appointment_date ?? appointment.preferred_date ?? "—"}</span>
         </div>
       ),
     },
@@ -48,7 +48,7 @@ export default function UpcomingAppointments() {
       accessor: (appointment) => (
         <div className="flex items-center gap-2">
           <Clock className="h-4 w-4 text-muted-foreground" />
-          <span>{appointment.preferred_time}</span>
+          <span>{appointment.scheduled_start_time ?? appointment.preferred_time ?? "—"}</span>
         </div>
       ),
     },

@@ -21,7 +21,7 @@ import { useNavigate } from "react-router-dom";
 import type { BookAppointmentBody } from "../types";
 import { UserPlus } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
-import { DAY_NAMES, getDayOfWeek, getDoctorShiftSummary } from "../doctorAvailability";
+import { DAY_NAMES, formatTimeForApi, getDayOfWeek, getDoctorShiftSummary } from "../doctorAvailability";
 
 export default function BookAppointmentTab() {
   const [selectedPatientId, setSelectedPatientId] = useState<number | undefined>();
@@ -59,7 +59,7 @@ export default function BookAppointmentTab() {
       doctor_id: values.doctor_id,
       appointment_type: values.appointment_type,
       appointment_date: values.appointment_date,
-      scheduled_start_time: values.scheduled_start_time,
+      scheduled_start_time: formatTimeForApi(values.scheduled_start_time) || values.scheduled_start_time,
       notes: values.notes ?? null,
       is_walk_in: values.is_walk_in ?? false,
     };

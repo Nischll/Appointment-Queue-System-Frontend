@@ -36,18 +36,7 @@ import {
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import { AppointmentStatusEnum, AppointmentTypeEnum } from "@/enums/AppointmentEnum";
 import { ChevronDown, ChevronUp, User } from "lucide-react";
-import { DAY_NAMES, getDoctorShiftSummary, isDoctorUnavailable } from "../doctorAvailability";
-
-/** Format "HH:mm" to "10:30 AM" for API */
-function formatTimeForApi(value: string): string {
-  if (!value) return "";
-  const [h, m] = value.split(":").map(Number);
-  if (h == null || isNaN(h)) return value;
-  const period = h >= 12 ? "PM" : "AM";
-  const hour = h % 12 || 12;
-  const min = (m != null && !isNaN(m) ? m : 0).toString().padStart(2, "0");
-  return `${hour}:${min} ${period}`;
-}
+import { DAY_NAMES, formatTimeForApi, getDoctorShiftSummary, isDoctorUnavailable } from "../doctorAvailability";
 
 const STATUS_LABEL: Record<string, string> = {
   [AppointmentStatusEnum.REQUESTED]: "Requested",

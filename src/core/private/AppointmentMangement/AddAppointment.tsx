@@ -22,6 +22,7 @@ import { useAuth } from "@/components/ContextApi/AuthContext";
 import { AppointmentTypeEnum } from "@/enums/AppointmentEnum";
 import { NiceSelect } from "@/components/ui/NiceSelect";
 import { useNavigate, useLocation } from "react-router-dom";
+import { formatTimeForApi } from "./doctorAvailability";
 
 type AppointmentFormValues = {
     patient_id: number;
@@ -71,6 +72,7 @@ const AddAppointment = () => {
         const payload = {
             ...values,
             patient_id: selectedPatientId,
+            ...(values.scheduled_start_time && { scheduled_start_time: formatTimeForApi(values.scheduled_start_time) }),
         };
         save.mutate(payload, {
             onSuccess: () => {
