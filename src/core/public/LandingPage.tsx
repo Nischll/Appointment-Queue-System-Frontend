@@ -92,7 +92,7 @@ const LandingPage = () => {
         <div className="w-full px-4 py-16 sm:px-6 sm:py-24 lg:px-8 lg:py-32">
           <div className="mx-auto max-w-4xl text-center">
             <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl">
-              Your health, <span className="text-primary text-4xl">our priority</span>
+              Your health, <span className="text-primary text-4xl sm:text-5xl md:text-6xl">our priority</span>
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
               Welcome to Care Clinic. We provide comprehensive medical care with a focus on comfort,
