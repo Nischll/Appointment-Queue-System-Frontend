@@ -6,7 +6,7 @@ import { Navigate, RouteObject } from "react-router-dom";
 import { DynamicRedirect } from "./dynamicRedirect";
 
 const PrivateLayout = lazy(() => import("../components/layout/MainLayout"));
-const Dashboard = lazy(() => import("../core/private/Dashboard/Dashboard"));
+const DashboardSwitch = lazy(() => import("../core/private/Dashboard/DashboardSwitch"));
 const Reports = lazy(() => import("../core/private/Reports/Reports"));
 const UserTable = lazy(() => import("../core/private/UserManagement/StaffManagement/UserTable"));
 const RoleManagement = lazy(() => import("../core/private/UserManagement/RoleManagement/RoleManagement"));
@@ -36,11 +36,7 @@ export const privateRoutes: RouteObject[] = [
       },
       {
         path: "home",
-        element: (
-          <DashboardProvider>
-            <Dashboard />
-          </DashboardProvider>
-        ),
+        element: <DashboardSwitch />,
       },
       {
         path: "reports",
