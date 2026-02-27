@@ -1,6 +1,8 @@
 import { UserGet } from "@/core/private/UserManagement/StaffManagement/staffTypes";
 import { API_ENDPOINTS } from "../constants/ApiEndpoints/apiEndpoints";
 import { UserData } from "../ContextApi/AuthContext";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { apiService } from "@/api";
 import { useApiGet } from "./ApiGet";
 import { useApiMutation } from "./ApiMutation";
 import { PermissionApiItem, RoleResponse } from "@/core/private/UserManagement/RoleManagement/roleTypes.ts";
@@ -9,6 +11,12 @@ import { Clinic, Doctor } from "@/core/private/Patient/MyAppointments/appointmen
 import { PatientProfileResponse } from "@/core/private/Patient/Profile/profileTypes";
 import { StaffProfileResponse } from "@/core/private/Profile/staffProfileTypes";
 import { AppointmentTypeEnum } from "@/enums/AppointmentEnum";
+import {
+  DashboardSummaryResponse,
+  type DashboardTimeframe,
+  type DashboardApprovalRequest,
+  type DashboardDoctorAtWork,
+} from "@/core/private/Dashboard/DashboardTypes";
 
 export type ApiListResponse<T> = {
     statusCode: number;
@@ -47,6 +55,78 @@ export const useGetInit = () => {
         refetchOnReconnect: true,
     });
 };
+
+/** Dashboard summary (optional: timeframe, clinicId for filtering) */
+export const useGetDashboardSummary = (
+    timeframe?: DashboardTimeframe,
+    clinicId?: string | number | null
+) =>
+    useApiGet<DashboardSummaryResponse>(API_ENDPOINTS.DASHBOARD.GET_SUMMARY, {
+        queryParams: {
+            ...(timeframe ? { timeframe } : {}),
+            ...(clinicId != null && clinicId !== "" ? { clinicId: String(clinicId) } : {}),
+        },
+        retry: 0,
+        refetchOnMount: true,
+    });
+
+/** Appointments over time for bar chart (optional; backend may implement later) */
+export const useGetDashboardAppointmentsChart = (
+    timeframe?: DashboardTimeframe,
+    clinicId?: string | number | null
+) =>
+    useApiGet<{ statusCode: number; message: string; data: { period: string; count: number }[] }>(
+        API_ENDPOINTS.DASHBOARD.GET_APPOINTMENTS_CHART,
+        {
+            queryParams: {
+                ...(timeframe ? { timeframe } : {}),
+                ...(clinicId != null && clinicId !== "" ? { clinicId: String(clinicId) } : {}),
+            },
+            retry: 0,
+            enabled: true,
+        }
+    );
+
+/** Appointment types for donut (optional; backend may implement later) */
+export const useGetDashboardAppointmentTypes = (
+    timeframe?: DashboardTimeframe,
+    clinicId?: string | number | null
+) =>
+    useApiGet<{
+        statusCode: number;
+        message: string;
+        data: { type: string; label: string; count: number; percent: number }[];
+    }>(API_ENDPOINTS.DASHBOARD.GET_APPOINTMENT_TYPES, {
+        queryParams: {
+            ...(timeframe ? { timeframe } : {}),
+            ...(clinicId != null && clinicId !== "" ? { clinicId: String(clinicId) } : {}),
+        },
+        retry: 0,
+        enabled: true,
+    });
+
+/** Approval requests for dashboard card. GET /api/dashboard/approval-requests?clinic_id= */
+export const useGetDashboardApprovalRequests = (clinicId?: string | number | null) =>
+    useApiGet<{ statusCode: number; message: string; data: DashboardApprovalRequest[] }>(
+        API_ENDPOINTS.DASHBOARD.GET_APPROVAL_REQUESTS,
+        {
+            queryParams: clinicId != null && clinicId !== "" ? { clinic_id: String(clinicId) } : {},
+            retry: 0,
+            refetchOnMount: true,
+        }
+    );
+
+/** Doctors at work for dashboard card. GET /api/dashboard/doctors-at-work?clinic_id= */
+export const useGetDashboardDoctorsAtWork = (clinicId?: string | number | null) =>
+    useApiGet<{ statusCode: number; message: string; data: DashboardDoctorAtWork[] }>(
+        API_ENDPOINTS.DASHBOARD.GET_DOCTORS_AT_WORK,
+        {
+            queryParams: clinicId != null && clinicId !== "" ? { clinic_id: String(clinicId) } : {},
+            retry: 0,
+            refetchOnMount: true,
+        }
+    );
+
 export const useGetStaff = () =>
     useApiGet<ApiListResponse<UserGet>>(API_ENDPOINTS.STAFF.GET_STAFF, {
         retry: 0
@@ -112,6 +192,7 @@ export const useDeleteDepartment = (id: string | number | undefined) =>
 export const useAddPatient = () =>
     useApiMutation("post", API_ENDPOINTS.PATIENT.ADD_PATIENT);
 
+/** @deprecated Backend now uses pagination. Use useGetPatients or useInfinitePatients for dropdown/table. */
 export const useGetPatient = () =>
     useApiGet<ApiListResponse<Patient>>(API_ENDPOINTS.PATIENT.GET_PATIENT);
 
@@ -121,6 +202,29 @@ export const useGetPatients = (page = 1, limit = 10, search?: string) => {
     if (searchTrim) queryParams.search = searchTrim;
     return useApiGet<ApiPaginatedResponse<Patient>>(API_ENDPOINTS.PATIENT.GET_PATIENT, {
         queryParams,
+    });
+};
+
+/** Infinite list for dropdown: load more on scroll, search triggers new fetch. */
+export const useInfinitePatients = (search: string, limit = 15) => {
+    return useInfiniteQuery({
+        queryKey: ["patients-infinite", search.trim(), limit],
+        initialPageParam: 1,
+        queryFn: async ({ pageParam }) => {
+            const params: Record<string, number | string> = { page: pageParam, limit };
+            const s = search?.trim();
+            if (s) params.search = s;
+            const res = await apiService.get<ApiPaginatedResponse<Patient>>(
+                API_ENDPOINTS.PATIENT.GET_PATIENT,
+                { params }
+            );
+            return res.data;
+        },
+        getNextPageParam: (lastPage) => {
+            const p = lastPage?.data?.pagination;
+            if (!p || p.page >= p.total_pages) return undefined;
+            return p.page + 1;
+        },
     });
 };
 

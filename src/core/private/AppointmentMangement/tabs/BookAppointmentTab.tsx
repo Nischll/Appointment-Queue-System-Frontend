@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import {
-  useGetPatient,
   useGetPatientById,
   useGetClinicsByStaff,
   useGetDepartment,
@@ -14,6 +13,7 @@ import {
   useGetDoctorShift,
   useBookAppointment,
 } from "@/components/ApiCall/Api";
+import { PatientSelectDropdown } from "@/components/PatientSelectDropdown";
 import { useAuth } from "@/components/ContextApi/AuthContext";
 import { AppointmentTypeEnum } from "@/enums/AppointmentEnum";
 import { NiceSelect } from "@/components/ui/NiceSelect";
@@ -36,7 +36,6 @@ export default function BookAppointmentTab() {
   const appointmentDate = watch.appointment_date;
 
   const { user } = useAuth();
-  const { data: patientList } = useGetPatient();
   const { data: patientDetails } = useGetPatientById(selectedPatientId);
   const { data: clinicData } = useGetClinicsByStaff(user?.userId);
   const { data: departmentData } = useGetDepartment(clinicId);
@@ -82,21 +81,15 @@ export default function BookAppointmentTab() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-muted/30 p-4">
         <div className="flex-1 min-w-[200px]">
-          <Label>Patient</Label>
-          <NiceSelect
+          <PatientSelectDropdown
+            label="Patient"
             name="patient_id"
-            options={
-              patientList?.data?.map((p) => ({
-                value: p.id ?? 0,
-                label: `${p.full_name} (${p.phone})`,
-              })) ?? []
-            }
-            placeholder="Choose patient"
-            onChange={(option) => {
-              const id = option ? Number(option.value) : undefined;
+            value={selectedPatientId}
+            onChange={(id) => {
               setSelectedPatientId(id);
               form.setValue("patient_id", id as any);
             }}
+            placeholder="Choose patient"
           />
         </div>
         <Button

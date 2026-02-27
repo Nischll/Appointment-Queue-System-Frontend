@@ -13,6 +13,16 @@ export const API_ENDPOINTS = {
   },
   DASHBOARD: {
     GET_HEADER: (branchId: number | null) => `api/dashboard/header/${branchId}`,
+    /** Summary stats (query: timeframe, clinicId) */
+    GET_SUMMARY: "api/dashboard/summary",
+    /** Appointments over time for bar chart (query: timeframe, clinicId) */
+    GET_APPOINTMENTS_CHART: "api/dashboard/appointments-chart",
+    /** Appointment types for donut (query: timeframe, clinicId) */
+    GET_APPOINTMENT_TYPES: "api/dashboard/appointment-types",
+    /** Pending approval requests (query: clinic_id optional) */
+    GET_APPROVAL_REQUESTS: "api/dashboard/approval-requests",
+    /** Doctors currently at work (query: clinic_id optional) */
+    GET_DOCTORS_AT_WORK: "api/dashboard/doctors-at-work",
   },
   REPORTS: {
     GET_HEADER_DATA: (timeframe: string | undefined, branchId: number | null) =>

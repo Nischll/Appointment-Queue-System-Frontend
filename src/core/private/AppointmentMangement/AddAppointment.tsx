@@ -12,12 +12,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 
 import {
-    useGetPatient,
     useGetPatientById,
     useGetClinicsByStaff,
     useGetDepartment,
-    useGetDoctor, useAddAppointment,
+    useGetDoctor,
+    useAddAppointment,
 } from "@/components/ApiCall/Api";
+import { PatientSelectDropdown } from "@/components/PatientSelectDropdown";
 import { useAuth } from "@/components/ContextApi/AuthContext";
 import { AppointmentTypeEnum } from "@/enums/AppointmentEnum";
 import { NiceSelect } from "@/components/ui/NiceSelect";
@@ -58,7 +59,6 @@ const AddAppointment = () => {
     const departmentId = watch("department_id");
 
     const { user } = useAuth();
-    const { data: patientList, refetch: refetchPateient } = useGetPatient();
     const { data: patientDetails } = useGetPatientById(selectedPatientId);
 
     const { data: clinicData } = useGetClinicsByStaff(user?.userId);
@@ -94,27 +94,15 @@ const AddAppointment = () => {
                 {/* Patient Select */}
                 <div className=" space-y-2 p-2 rounded-md border border-gray-200 bg-blue-200/50 flex justify-between">
                     <div>
-                        <Label>Select Patient</Label>
-                        <NiceSelect
-
+                        <PatientSelectDropdown
+                            label="Select Patient"
                             name="patient_id"
-                            options={
-                                patientList?.data?.map((p) => ({
-                                    value: p.id ?? 0,
-                                    label: `${p.full_name} (${p.phone})`,
-                                })) || []
-                            }
-                            placeholder="Choose a patient"
-                            onChange={(option) => {
-                                if (option) { // handle null
-                                    const id = Number(option.value);
-                                    setSelectedPatientId(id);
-                                    setValue("patient_id", id);
-                                } else {
-                                    setSelectedPatientId(undefined);
-                                    setValue("patient_id", 0);
-                                }
+                            value={selectedPatientId}
+                            onChange={(id) => {
+                                setSelectedPatientId(id ?? undefined);
+                                setValue("patient_id", id ?? 0);
                             }}
+                            placeholder="Choose a patient"
                         />
                     </div>
                     <Button
