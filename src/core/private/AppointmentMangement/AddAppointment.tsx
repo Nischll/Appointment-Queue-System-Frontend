@@ -24,6 +24,7 @@ import { AppointmentTypeEnum } from "@/enums/AppointmentEnum";
 import { NiceSelect } from "@/components/ui/NiceSelect";
 import { useNavigate, useLocation } from "react-router-dom";
 import { formatTimeForApi } from "./doctorAvailability";
+import { DoctorScheduleCard } from "./DoctorScheduleCard";
 
 type AppointmentFormValues = {
     patient_id: number;
@@ -57,6 +58,8 @@ const AddAppointment = () => {
     }, [newPatientIdFromState, setValue]);
     const clinicId = watch("clinic_id");
     const departmentId = watch("department_id");
+    const doctorId = watch("doctor_id");
+    const appointmentDate = watch("appointment_date");
 
     const { user } = useAuth();
     const { data: patientDetails } = useGetPatientById(selectedPatientId);
@@ -237,6 +240,17 @@ const AddAppointment = () => {
                                         onChange={(e) => setValue("scheduled_start_time", e.target.value)}
                                     />
                                 </div>
+
+                                {doctorId && appointmentDate && clinicId && (
+                                    <div className="md:col-span-3">
+                                        <DoctorScheduleCard
+                                            doctorId={doctorId}
+                                            date={appointmentDate}
+                                            clinicId={clinicId}
+                                            compact
+                                        />
+                                    </div>
+                                )}
 
                                 {/* Walk-in */}
                                 <div className="flex items-center gap-2 md:col-span-3">

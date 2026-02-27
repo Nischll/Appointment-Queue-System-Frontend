@@ -22,6 +22,7 @@ import type { BookAppointmentBody } from "../types";
 import { UserPlus } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { DAY_NAMES, formatTimeForApi, getDayOfWeek, getDoctorShiftSummary } from "../doctorAvailability";
+import { DoctorScheduleCard } from "../DoctorScheduleCard";
 
 export default function BookAppointmentTab() {
   const [selectedPatientId, setSelectedPatientId] = useState<number | undefined>();
@@ -163,8 +164,18 @@ export default function BookAppointmentTab() {
                 />
               </div>
               {doctorId && appointmentDate && doctorShiftSummary && (
-                <div className="md:col-span-2 lg:col-span-3 rounded-md bg-muted/50 p-3 text-sm">
-                  <strong>Doctor availability ({DAY_NAMES[getDayOfWeek(appointmentDate) % 7] ?? ""}):</strong> {doctorShiftSummary}
+                <div className="md:col-span-2 lg:col-span-3 space-y-3">
+                  <div className="rounded-md bg-muted/50 p-3 text-sm">
+                    <strong>Doctor availability ({DAY_NAMES[getDayOfWeek(appointmentDate) % 7] ?? ""}):</strong> {doctorShiftSummary}
+                  </div>
+                  {clinicId && (
+                    <DoctorScheduleCard
+                      doctorId={doctorId}
+                      date={appointmentDate}
+                      clinicId={clinicId}
+                      compact
+                    />
+                  )}
                 </div>
               )}
               <div>

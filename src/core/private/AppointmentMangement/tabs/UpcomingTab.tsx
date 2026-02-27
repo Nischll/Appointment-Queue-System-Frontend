@@ -28,6 +28,7 @@ import { API_ENDPOINTS } from "@/components/constants/ApiEndpoints/apiEndpoints"
 import { AppointmentTypeEnum } from "@/enums/AppointmentEnum";
 import type { ApproveAppointmentBody, RejectAppointmentBody, RescheduleAppointmentBody } from "../types";
 import { DAY_NAMES, formatTimeForApi, getDoctorShiftSummary, isDoctorUnavailable } from "../doctorAvailability";
+import { DoctorScheduleCard } from "../DoctorScheduleCard";
 import { AppointmentTableExpandable } from "../AppointmentTableExpandable";
 
 type UpcomingRow = {
@@ -465,8 +466,18 @@ function ApproveDialog({
             />
           </div>
           {body.doctor_id && body.appointment_date && doctorShiftSummary && (
-            <div className="rounded-md bg-muted/50 p-3 text-sm">
-              <strong>Doctor availability ({DAY_NAMES[new Date(body.appointment_date + "T12:00:00").getDay()]}):</strong> {doctorShiftSummary}
+            <div className="space-y-3">
+              <div className="rounded-md bg-muted/50 p-3 text-sm">
+                <strong>Doctor availability ({DAY_NAMES[new Date(body.appointment_date + "T12:00:00").getDay()]}):</strong> {doctorShiftSummary}
+              </div>
+              {row.clinic_id && (
+                <DoctorScheduleCard
+                  doctorId={body.doctor_id}
+                  date={body.appointment_date}
+                  clinicId={row.clinic_id}
+                  compact
+                />
+              )}
             </div>
           )}
           <div>
@@ -577,8 +588,18 @@ function RescheduleDialog({
             />
           </div>
           {row.doctor_id && body.appointment_date && doctorShiftSummary && (
-            <div className="rounded-md bg-muted/50 p-3 text-sm">
-              <strong>Doctor availability ({DAY_NAMES[new Date(body.appointment_date + "T12:00:00").getDay()]}):</strong> {doctorShiftSummary}
+            <div className="space-y-3">
+              <div className="rounded-md bg-muted/50 p-3 text-sm">
+                <strong>Doctor availability ({DAY_NAMES[new Date(body.appointment_date + "T12:00:00").getDay()]}):</strong> {doctorShiftSummary}
+              </div>
+              {row.clinic_id && (
+                <DoctorScheduleCard
+                  doctorId={row.doctor_id}
+                  date={body.appointment_date}
+                  clinicId={row.clinic_id}
+                  compact
+                />
+              )}
             </div>
           )}
           <div>

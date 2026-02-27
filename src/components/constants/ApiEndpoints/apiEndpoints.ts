@@ -117,6 +117,8 @@ export const API_ENDPOINTS = {
 
   },
   APPOINTMENT: {
+    /** GET doctor's appointments for a date at a clinic. Query: doctor_id, date, clinic_id */
+    GET_DOCTOR_SCHEDULE: "api/appointments/doctor-schedule",
     BOOK: "api/appointments/book",
     UPDATE: (id: string | number | undefined) => `api/appointments/update/${id}`,
     APPROVE: (id: string | number | undefined) => `api/appointments/approve/${id}`,

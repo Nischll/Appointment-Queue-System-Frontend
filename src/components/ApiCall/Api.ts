@@ -245,7 +245,35 @@ export const useGetDoctorShift = (doctorId: string | number | undefined, departm
     useApiGet(API_ENDPOINTS.DOCTOR_SHIFT.GET_DOCTOR_SHIFT(doctorId, departmentId), {
         retry: 0,
         enabled: !!doctorId && !!departmentId,
-    })
+    });
+
+/** GET doctor's appointments for a date at a clinic. Used to show existing bookings when choosing time. */
+export interface DoctorScheduleItem {
+    id: number;
+    scheduled_start_time: string;
+    estimated_duration: number;
+    appointment_type: string;
+    status: string;
+    patient_name: string;
+}
+export const useGetDoctorSchedule = (
+    doctorId: string | number | undefined,
+    date: string | undefined,
+    clinicId: string | number | undefined
+) =>
+    useApiGet<{ statusCode: number; message: string; data: DoctorScheduleItem[] }>(
+        API_ENDPOINTS.APPOINTMENT.GET_DOCTOR_SCHEDULE,
+        {
+            queryParams: {
+                doctor_id: doctorId ?? "",
+                date: date ?? "",
+                clinic_id: clinicId ?? "",
+            },
+            enabled: !!doctorId && !!date && !!clinicId,
+            retry: 0,
+        }
+    );
+
 export const useSaveDoctorShift = (doctorId: string | number | undefined, departmentId: string | undefined | number) =>
     useApiMutation("put", API_ENDPOINTS.DOCTOR_SHIFT.ADD_DOCTOR_SHIFT(doctorId, departmentId))
 export const useBookAppointment = () =>

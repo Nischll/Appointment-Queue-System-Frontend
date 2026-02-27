@@ -37,6 +37,7 @@ import ConfirmModal from "@/components/ui/ConfirmModal";
 import { AppointmentStatusEnum, AppointmentTypeEnum } from "@/enums/AppointmentEnum";
 import { ChevronDown, ChevronUp, User } from "lucide-react";
 import { DAY_NAMES, formatTimeForApi, getDoctorShiftSummary, isDoctorUnavailable } from "../doctorAvailability";
+import { DoctorScheduleCard } from "../DoctorScheduleCard";
 
 const STATUS_LABEL: Record<string, string> = {
   [AppointmentStatusEnum.REQUESTED]: "Requested",
@@ -627,8 +628,18 @@ function UpdateAppointmentDialog({
             <Input name="upd_time" type="time" value={scheduled_start_time} onChange={(e) => setScheduled_start_time(e.target.value)} />
           </div>
           {doctor_id && appointmentDate && doctorShiftSummary && (
-            <div className="rounded-md bg-muted/50 p-3 text-sm">
-              <strong>Doctor availability ({DAY_NAMES[new Date(appointmentDate + "T12:00:00").getDay()]}):</strong> {doctorShiftSummary}
+            <div className="space-y-3">
+              <div className="rounded-md bg-muted/50 p-3 text-sm">
+                <strong>Doctor availability ({DAY_NAMES[new Date(appointmentDate + "T12:00:00").getDay()]}):</strong> {doctorShiftSummary}
+              </div>
+              {clinic_id && (
+                <DoctorScheduleCard
+                  doctorId={doctor_id}
+                  date={appointmentDate}
+                  clinicId={clinic_id}
+                  compact
+                />
+              )}
             </div>
           )}
           <div className="flex items-center gap-2">
@@ -704,8 +715,18 @@ function RescheduleLiveDialog({
             <Input name="res_time" type="time" value={scheduled_start_time} onChange={(e) => setScheduled_start_time(e.target.value)} />
           </div>
           {effectiveDoctorId && appointment_date && doctorShiftSummary && (
-            <div className="rounded-md bg-muted/50 p-3 text-sm">
-              <strong>Doctor availability ({DAY_NAMES[new Date(appointment_date + "T12:00:00").getDay()]}):</strong> {doctorShiftSummary}
+            <div className="space-y-3">
+              <div className="rounded-md bg-muted/50 p-3 text-sm">
+                <strong>Doctor availability ({DAY_NAMES[new Date(appointment_date + "T12:00:00").getDay()]}):</strong> {doctorShiftSummary}
+              </div>
+              {clinic_id && (
+                <DoctorScheduleCard
+                  doctorId={effectiveDoctorId}
+                  date={appointment_date}
+                  clinicId={clinic_id}
+                  compact
+                />
+              )}
             </div>
           )}
           <div>
@@ -842,8 +863,18 @@ function FollowUpDialog({
             />
           </div>
           {effectiveDoctorId && appointment_date && doctorShiftSummary && (
-            <div className="rounded-md bg-muted/50 p-3 text-sm">
-              <strong>Doctor availability ({DAY_NAMES[new Date(appointment_date + "T12:00:00").getDay()]}):</strong> {doctorShiftSummary}
+            <div className="space-y-3">
+              <div className="rounded-md bg-muted/50 p-3 text-sm">
+                <strong>Doctor availability ({DAY_NAMES[new Date(appointment_date + "T12:00:00").getDay()]}):</strong> {doctorShiftSummary}
+              </div>
+              {appt?.clinic_id && (
+                <DoctorScheduleCard
+                  doctorId={effectiveDoctorId}
+                  date={appointment_date}
+                  clinicId={appt.clinic_id}
+                  compact
+                />
+              )}
             </div>
           )}
           <div>

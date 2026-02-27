@@ -22,6 +22,7 @@ import {
 import { BookAppointmentRequest, Clinic, Doctor, PREFERRED_TIME } from "./appointmentTypes";
 import { useQueryClient } from "@tanstack/react-query";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { DoctorScheduleCard } from "@/core/private/AppointmentMangement/DoctorScheduleCard";
 
 interface BookingFlowProps {
   onSuccess?: () => void;
@@ -325,6 +326,16 @@ export default function BookingFlow({ onSuccess }: BookingFlowProps) {
                   </Select>
                 )}
               </div>
+
+              {selectedDoctor && selectedClinic && selectedDate && (
+                <DoctorScheduleCard
+                  doctorId={selectedDoctor.id}
+                  date={selectedDate}
+                  clinicId={selectedClinic.id}
+                  title="This doctor's appointments on your chosen day"
+                  compact
+                />
+              )}
             </div>
           )}
 
