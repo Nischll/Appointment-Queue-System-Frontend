@@ -1,9 +1,10 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Patient } from "@/core/private/PatientMangement/type.ts";
-import { useGetPatient, useDeletePatient } from "@/components/ApiCall/Api";
+import { useDeletePatient, useGetPatients } from "@/components/ApiCall/Api";
 import { Button } from "@/components/ui/button";
 import Table, { Column } from "@/components/ui/table";
+import { bloodTypeOptions } from "./constants";
 
 const dobFromRow = (row: Patient) =>
   (row.date_of_birth ?? row.dob) ?? "";
@@ -27,10 +28,25 @@ function formatGender(gender: "M" | "F" | undefined | null): string {
   return gender ?? "—";
 }
 
+function formatBloodGroup(value: string | null | undefined): string {
+  if (value == null || value === "") return "—";
+  const found = bloodTypeOptions.find((o) => o.value === value);
+  if (found) return found.label;
+  return value;
+}
+
 const PatientTable = () => {
   const navigate = useNavigate();
-  const { data, refetch } = useGetPatient();
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [search, setSearch] = useState("");
+  const { data, refetch } = useGetPatients(page, limit, search);
   const deletePatient = useDeletePatient();
+
+  const inner = data?.data;
+  const rows = (Array.isArray(inner?.data) ? inner.data : []) as (Patient & { id: number })[];
+  const pagination = inner?.pagination;
+  const totalItems = pagination?.total ?? rows.length;
 
   const handleAddPatient = () => {
     navigate("/patient-management/add");
@@ -50,10 +66,10 @@ const PatientTable = () => {
   const columns: Column<Patient>[] = useMemo(
     () => [
       { header: "Full Name", accessor: "full_name" },
-      { header: "Email", accessor: "email" },
+      { header: "Email", accessor: "email", width: "18%" },
       { header: "Phone", accessor: "phone" },
       { header: "Gender", accessor: (row) => formatGender(row.gender) },
-      { header: "Blood Group", accessor: "blood_group" },
+      { header: "Blood Group", accessor: (row) => formatBloodGroup(row.blood_group) },
       {
         header: "DOB / Age",
         accessor: (row) => formatDobAge(row),
@@ -78,9 +94,24 @@ const PatientTable = () => {
       </div>
 
       <Table
-        data={(data?.data || []).filter((p): p is Patient & { id: number } => p.id != null)}
+        data={rows.filter((p): p is Patient & { id: number } => p.id != null)}
         columns={columns}
         fitToViewport={true}
+        searchable={true}
+        onSearchChange={(value) => {
+          setSearch(value ?? "");
+          setPage(1);
+        }}
+        pagination={true}
+        totalItems={totalItems}
+        page={page}
+        itemsPerPage={limit}
+        onPageChange={(p) => setPage(p)}
+        showPageSize={true}
+        onItemsPerPageChange={(size) => {
+          setLimit(size);
+          setPage(1);
+        }}
         onDelete={handleDeletePatient}
         onEdit={handleEditPatient}
       />

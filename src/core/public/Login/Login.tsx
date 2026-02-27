@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import z from "zod";
+import { ArrowLeft } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -55,6 +56,12 @@ const Login = () => {
     <section className="border-b border-border/40 bg-gradient-to-b from-primary/5 to-transparent">
       <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
         <div className="mx-auto max-w-sm">
+          <Button variant="ghost" size="sm" className="mb-4 -ml-2" asChild>
+            <Link to="/">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to home
+            </Link>
+          </Button>
           <h1 className="text-2xl font-bold text-foreground sm:text-3xl">Log in</h1>
           <p className="mt-2 text-muted-foreground">
             Sign in to your account to manage appointments and more.

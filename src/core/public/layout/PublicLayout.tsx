@@ -10,10 +10,27 @@ const sectionLinks = [
   { href: "/#contact", label: "Contact" },
 ];
 
+const scrollToSection = (href: string) => {
+  if (href === "/#home") {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    return;
+  }
+  const id = href.replace("/#", "");
+  document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+};
+
 const PublicLayout = () => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const isLanding = location.pathname === "/";
+
+  const handleSectionClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (location.pathname === "/") {
+      e.preventDefault();
+      scrollToSection(href);
+      setMobileMenuOpen(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-background w-full">
@@ -39,6 +56,7 @@ const PublicLayout = () => {
                 <a
                   key={href}
                   href={href}
+                  onClick={(e) => handleSectionClick(e, href)}
                   className={cn(
                     "px-4 py-2 rounded-md text-sm font-medium transition-colors",
                     isActive ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-accent"
@@ -79,7 +97,9 @@ const PublicLayout = () => {
                 <a
                   key={href}
                   href={href}
-                  onClick={() => setMobileMenuOpen(false)}
+                  onClick={(e) => {
+                    handleSectionClick(e, href);
+                  }}
                   className="px-4 py-3 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground"
                 >
                   {label}

@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import { differenceInYears, parseISO } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -80,6 +81,12 @@ const Signup = () => {
         {/* Form Container */}
         <div className="w-full flex flex-col justify-center p-6 sm:p-8">
           {/* Header */}
+          <Button variant="ghost" size="sm" className="mb-4 w-fit -ml-2" asChild>
+            <Link to="/">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to home
+            </Link>
+          </Button>
           <div className="mb-6 text-center">
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-1">Create Your Account</h2>
             <p className="text-gray-600 text-sm">Fill in your details to get started</p>

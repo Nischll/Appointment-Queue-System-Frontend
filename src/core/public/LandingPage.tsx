@@ -14,6 +14,7 @@ import {
   Phone,
   Mail,
 } from "lucide-react";
+import { useState } from "react";
 
 const features = [
   {
@@ -84,29 +85,74 @@ const contactInfo = [
   },
 ];
 
+export const heroContent = {
+  title: "Quality Healthcare Made Simple & Accessible",
+  description:
+    "CareClinic provides modern, reliable, and patient-centered healthcare services. Book appointments, manage records, and connect with doctors easily — all in one place.",
+
+  phoneNumber: "01-452365",
+
+  primaryCtaText: "Create Account & Book Appointment",
+  primaryCtaLink: "/signup",
+};
+
+const DEFAULT_HERO_IMAGE = "/hero-clinic-professional.png";
+const FALLBACK_HERO_IMAGE = "/placeholder.svg";
 const LandingPage = () => {
+  const [imgError, setImgError] = useState(false);
+  const heroImage = (imgError ? FALLBACK_HERO_IMAGE : DEFAULT_HERO_IMAGE);
   return (
     <>
-      {/* Home */}
-      <section id="home" className="w-full bg-gradient-to-br from-primary/5 via-background to-secondary/5">
-        <div className="w-full px-4 py-16 sm:px-6 sm:py-24 lg:px-8 lg:py-32">
-          <div className="mx-auto max-w-4xl text-center">
-            <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl">
-              Your health, <span className="text-primary text-4xl sm:text-5xl md:text-6xl">our priority</span>
+      {/* Hero */}
+      <section
+        id="hero"
+        className="relative h-[calc(100vh-4rem)] min-h-[calc(100vh-4rem)] overflow-hidden"
+        aria-labelledby="hero-title"
+      >
+        {/* Full-bleed background image */}
+        <div className="absolute inset-0">
+          <img
+            src={heroImage}
+            alt=""
+            role="presentation"
+            className="w-full h-full object-cover object-top-right"
+            onError={() => setImgError(true)}
+          />
+          {/* Overlay so text stays readable */}
+          <div
+            className="absolute inset-0 bg-gradient-to-r from-background/90 from-0% via-background/80 via-30% to-transparent"
+            aria-hidden
+          />
+        </div>
+
+        {/* Content overlaid on the image */}
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
+          <div className="max-w-xl py-14 sm:py-20">
+            <h1
+              id="hero-title"
+              className="text-3xl sm:text-4xl lg:text-5xl xl:text-[2.75rem] font-bold tracking-tight text-foreground leading-tight mb-5"
+            >
+              {heroContent.title}
             </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-              Welcome to Care Clinic. We provide comprehensive medical care with a focus on comfort,
-              clarity, and convenience. Book an appointment or sign in to manage your visits.
-            </p>
-            <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" asChild className="bg-primary hover:bg-primary/90">
-                <Link to="/signup">
-                  Create account <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
+            {heroContent.description && (
+              <p className="text-base text-muted-foreground mb-8 max-w-lg leading-relaxed">
+                {heroContent.description}
+              </p>
+            )}
+            <div className="flex flex-wrap items-center gap-4">
+              <Button size="lg" asChild className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-md rounded-lg px-6">
+                <Link to={heroContent.primaryCtaLink}>{heroContent.primaryCtaText}</Link>
               </Button>
-              <Button size="lg" variant="outline" asChild>
-                <Link to="/login">Log in</Link>
-              </Button>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <span className="text-sm font-medium uppercase tracking-wide">Or call</span>
+                <a
+                  // href={`tel:${phoneNumber.replace(/\D/g, "")}`}
+                  className="text-foreground font-semibold hover:text-primary transition-colors flex items-center gap-1.5"
+                >
+                  <Phone className="h-4 w-4" />
+                  {heroContent.phoneNumber}
+                </a>
+              </div>
             </div>
           </div>
         </div>

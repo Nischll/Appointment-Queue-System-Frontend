@@ -115,6 +115,15 @@ export const useAddPatient = () =>
 export const useGetPatient = () =>
     useApiGet<ApiListResponse<Patient>>(API_ENDPOINTS.PATIENT.GET_PATIENT);
 
+export const useGetPatients = (page = 1, limit = 10, search?: string) => {
+    const queryParams: Record<string, number | string> = { page, limit };
+    const searchTrim = search?.trim();
+    if (searchTrim) queryParams.search = searchTrim;
+    return useApiGet<ApiPaginatedResponse<Patient>>(API_ENDPOINTS.PATIENT.GET_PATIENT, {
+        queryParams,
+    });
+};
+
 export const useGetPatientById = (id: string | number | undefined) =>
     useApiGet<ApiSingleResponse<Patient>>(API_ENDPOINTS.PATIENT.GET_PATIENT_BY_ID(id), {
         enabled: !!id

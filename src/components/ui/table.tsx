@@ -7,9 +7,16 @@ import {
   FiEye,
   FiCheckCircle,
 } from "react-icons/fi";
+import { MoreVertical, Pill } from "lucide-react";
 import { useDebounce } from "use-debounce";
 
 import ConfirmModal from "./ConfirmModal";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./dropdown-menu";
 import { FaShieldAlt } from "react-icons/fa";
 
 import { COLORS } from "./Theme";
@@ -28,6 +35,8 @@ export type Column<T> = {
   header: string | React.ReactNode;
   accessor?: keyof T | ((row: T, index: number) => React.ReactNode);
   className?: string;
+  /** Optional column width when fitToViewport is true (e.g. "18%" to give more space) */
+  width?: string;
   expandable?: (row: T) => React.ReactNode; // new property
 };
 
@@ -47,6 +56,8 @@ type TableProps<T extends { id: number | string }> = {
   onApprove?: (row: T) => void;
   onDelete?: (row: T) => void;
   onPermission?: (row: T) => void;
+  /** Optional: show pill icon button to view medicines (e.g. patient medicines list) */
+  onViewMedicines?: (row: T) => void;
   totalItems?: number;
   page?: number;
   itemsPerPage?: number;
@@ -77,6 +88,7 @@ function Table<T extends { id: number | string }>({
   onApprove,
   onDelete,
   onPermission,
+  onViewMedicines,
   totalItems,
   page,
   itemsPerPage,
@@ -128,6 +140,7 @@ function Table<T extends { id: number | string }>({
     onDelete ||
     onView ||
     onApprove ||
+    onViewMedicines ||
     (hasExpandable && !hasActionsColumnInColumns);
 
   useEffect(() => {
@@ -280,7 +293,14 @@ function Table<T extends { id: number | string }>({
     28: "text-2xl w-7 h-7 p-2",
   };
 
-  // const renderActions = (row: T, size: keyof typeof sizeClassMap = 16) => {
+  const hasRowActions =
+    onEdit ||
+    onDelete ||
+    onView ||
+    onViewMedicines ||
+    onApprove ||
+    onPermission;
+
   const renderActions = (
     row: T,
     index: number,
@@ -290,52 +310,64 @@ function Table<T extends { id: number | string }>({
     const canShowEdit = !showEditButton || showEditButton(index) === true;
     return (
       <div className="flex gap-2 items-center">
-        {onApprove && (
-          <button
-            onClick={() => setConfirmState({ type: "approve", row })}
-            className={`text-green-600 rounded hover:bg-green-100 transition ${btnClass}`}
-            title="Approve"
-          >
-            <FiCheckCircle />
-          </button>
-        )}
-        {onEdit && canShowEdit && (
-          <button
-            onClick={() => onEdit(row)}
-            className={`text-blue-600 rounded hover:bg-blue-100  transition ${btnClass}`}
-            title="Edit"
-          >
-            <FiEdit />
-          </button>
-        )}
-        {onDelete && (
-          <button
-            onClick={() => setConfirmState({ type: "delete", row })}
-            className={`text-red-600 rounded hover:bg-red-100 transition ${btnClass}`}
-            title="Delete"
-          >
-            <FiTrash2 />
-          </button>
-        )}
-        {onView && (
-          <button
-            onClick={() => onView(row)}
-            className={`text-indigo-600 rounded hover:bg-indigo-100 transition ${btnClass}`}
-            title="View"
-          >
-            <FiEye />
-          </button>
-        )}
-        {onPermission && (
-          <button
-            onClick={() => onPermission(row)}
-            className={`text-green-600 rounded hover:bg-green-100 transition ${btnClass}`}
-            title="Permission"
-          >
-            <FaShieldAlt />
-          </button>
-        )}
-        {/* Expand/Collapse toggle — only in dedicated actions column */}
+        {hasRowActions ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                className={`text-muted-foreground rounded hover:bg-muted transition ${btnClass}`}
+                title="Actions"
+                aria-label="Row actions"
+              >
+                <MoreVertical className="w-4 h-4" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="min-w-[10rem]">
+              {onEdit && canShowEdit && (
+                <DropdownMenuItem onClick={() => onEdit(row)} className="cursor-pointer">
+                  <FiEdit className="mr-2 h-4 w-4 text-blue-600" />
+                  Edit
+                </DropdownMenuItem>
+              )}
+              {onViewMedicines && (
+                <DropdownMenuItem onClick={() => onViewMedicines(row)} className="cursor-pointer">
+                  <Pill className="mr-2 h-4 w-4 text-violet-600" />
+                  View medicines
+                </DropdownMenuItem>
+              )}
+              {onView && (
+                <DropdownMenuItem onClick={() => onView(row)} className="cursor-pointer">
+                  <FiEye className="mr-2 h-4 w-4 text-indigo-600" />
+                  View
+                </DropdownMenuItem>
+              )}
+              {onApprove && (
+                <DropdownMenuItem
+                  onClick={() => setConfirmState({ type: "approve", row })}
+                  className="cursor-pointer"
+                >
+                  <FiCheckCircle className="mr-2 h-4 w-4 text-green-600" />
+                  Approve
+                </DropdownMenuItem>
+              )}
+              {onPermission && (
+                <DropdownMenuItem onClick={() => onPermission(row)} className="cursor-pointer">
+                  <FaShieldAlt className="mr-2 h-4 w-4 text-green-600" />
+                  Permission
+                </DropdownMenuItem>
+              )}
+              {onDelete && (
+                <DropdownMenuItem
+                  onClick={() => setConfirmState({ type: "delete", row })}
+                  className="cursor-pointer text-red-600 focus:text-red-600"
+                >
+                  <FiTrash2 className="mr-2 h-4 w-4" />
+                  Delete
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : null}
         {hasExpandable && showDedicatedActionsColumn && (
           <button
             type="button"
@@ -669,7 +701,7 @@ function Table<T extends { id: number | string }>({
                             })}
 
                             {/* Actions */}
-                            {(onEdit || onDelete || onView || onApprove) && (
+                            {(onEdit || onDelete || onView || onApprove || onViewMedicines) && (
                               <div className="grid grid-cols-2 items-center bg-gray-100">
                                 <div className="px-4 py-3 text-xs font-semibold text-gray-500 border-r">
                                   Actions
@@ -775,17 +807,23 @@ function Table<T extends { id: number | string }>({
         className={`w-full border rounded-2xl divide-y divide-gray-200 ${fitToViewport ? "table-fixed" : "table-auto"}`}
         style={fitToViewport ? { width: "100%" } : { minWidth: "max-content" }}
       >
-        {fitToViewport && (
-          <colgroup>
-            <col style={{ width: "4%" }} />
-            {columns.map((_, i) => (
-              <col key={i} style={{ width: `${(100 - 4 - (showDedicatedActionsColumn ? 6 : 0)) / columns.length}%` }} />
-            ))}
-            {showDedicatedActionsColumn && (
-              <col style={{ width: "6%" }} />
-            )}
-          </colgroup>
-        )}
+        {fitToViewport && (() => {
+          const totalDataPercent = 100 - 4 - (showDedicatedActionsColumn ? 6 : 0);
+          const explicitTotal = columns.reduce((sum, col) => sum + (col.width ? parseFloat(col.width) : 0), 0);
+          const colsWithoutWidth = columns.filter((c) => !c.width).length;
+          const defaultWidth = colsWithoutWidth > 0 ? (totalDataPercent - explicitTotal) / colsWithoutWidth : 0;
+          return (
+            <colgroup>
+              <col style={{ width: "4%" }} />
+              {columns.map((col, i) => (
+                <col key={i} style={{ width: col.width ?? `${defaultWidth}%` }} />
+              ))}
+              {showDedicatedActionsColumn && (
+                <col style={{ width: "6%" }} />
+              )}
+            </colgroup>
+          );
+        })()}
         <thead className={`bg-white text-black border-b-4 shadow-2xl`}>
           <tr>
             <th className={`py-3 text-left text-xs font-semibold ${fitToViewport ? "px-2" : "px-4"}`}
