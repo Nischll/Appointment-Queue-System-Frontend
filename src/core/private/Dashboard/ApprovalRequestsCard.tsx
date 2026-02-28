@@ -122,7 +122,7 @@ function ApprovalRow({
         ) : null}
       </div>
       <div className="flex shrink-0 items-center gap-0.5">
-        <Button
+        {/* <Button
           variant="ghost"
           size="icon"
           className="h-8 w-8 text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950"
@@ -139,7 +139,7 @@ function ApprovalRow({
           disabled={approve.isPending}
         >
           <Check className="h-4 w-4" />
-        </Button>
+        </Button> */}
         <Button
           variant="ghost"
           size="icon"
