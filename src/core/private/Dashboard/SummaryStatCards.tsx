@@ -1,7 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Stethoscope, CalendarCheck, UserCheck } from "lucide-react";
 import { TrendingUp, TrendingDown } from "lucide-react";
-import { Link } from "react-router-dom";
 import type { DashboardSummary } from "./DashboardTypes";
 
 const cards: Array<{
@@ -64,14 +63,8 @@ export function SummaryStatCards({ data, isLoading }: SummaryStatCardsProps) {
                   {typeof value === "number" ? value : "—"}
                 </p>
               )}
-              <div className="mt-1 flex items-center justify-between">
+              <div className="mt-1">
                 <TrendIndicator value={trend} />
-                <Link
-                  to="/reports"
-                  className="text-xs font-medium text-primary hover:underline"
-                >
-                  View report
-                </Link>
               </div>
             </CardContent>
           </Card>
