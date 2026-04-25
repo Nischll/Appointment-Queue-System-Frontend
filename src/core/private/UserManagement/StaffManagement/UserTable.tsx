@@ -181,7 +181,7 @@ const UserTable = () => {
             Staff Management
           </h1>
           <p className="text-muted-foreground mt-2">
-            Welcome to Appointment & Queue Management System
+            Create and Manage Staff
           </p>
         </div>
         <Button onClick={handleAddUser}>Add Staff</Button>

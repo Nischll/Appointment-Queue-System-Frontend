@@ -107,7 +107,9 @@ function toast(props: Omit<ToasterToast, "id">) {
       },
     },
   });
-
+  setTimeout(() => {
+    dismiss();
+  }, TOAST_DURATION);
   return { id, dismiss, update };
 }
 

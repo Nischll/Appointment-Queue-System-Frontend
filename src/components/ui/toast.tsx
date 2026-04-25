@@ -27,12 +27,11 @@ const toastVariants = cva(
     variants: {
       variant: {
         default: "bg-background text-foreground border border-border",
-        success:
-          "bg-success/70 text-success-foreground border-l-4 border-success",
+        success: "bg-success/20 text-foreground border-l-4 border-success",
         destructive:
-          "bg-destructive/50 text-destructive-foreground border-l-4 border-destructive",
+          "bg-destructive/15 text-foreground border-l-4 border-destructive",
         warning:
-          "bg-warning/20 text-warning-foreground border-l-4 border-warning",
+          "bg-warning/15 text-warning-foreground border-l-4 border-warning",
       },
     },
     defaultVariants: {
@@ -43,9 +42,9 @@ const toastVariants = cva(
 
 const iconMap = {
   default: <Info className="text-muted-foreground" />,
-  success: <CheckCircle className="text-success-foreground" />,
-  destructive: <XCircle className="text-destructive-foreground" />,
-  warning: <AlertTriangle className="text-warning-foreground" />,
+  success: <CheckCircle className="text-success" />,
+  destructive: <XCircle className="text-destructive" />,
+  warning: <AlertTriangle className="text-warning" />,
 };
 
 const Toast = React.forwardRef<

@@ -62,6 +62,7 @@ export function useApiMutation<
         const res = response.data as SuccessResponse<TJsonData> | undefined;
         toast({
           title: "Success",
+          variant:"success",
           description: res?.message ?? "Operation successful",
         });
       }
