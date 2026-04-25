@@ -221,7 +221,7 @@ const MainLayout = () => {
             </Button>
 
             <div className="hidden sm:block text-sm text-muted-foreground">
-              Welcome to Appointment & Queue Management System
+              Welcome to Queue Management System
             </div>
             <div className="ml-auto flex items-center gap-3">
               <DropdownMenu>

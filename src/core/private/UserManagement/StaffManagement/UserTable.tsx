@@ -218,7 +218,20 @@ const UserTable = () => {
                 <FormField
                   control={form.control}
                   name="full_name"
-                  rules={{ required: "Full name is required" }}
+                  rules={{ required: "Full name is required",
+                    minLength:{
+                      value: 4,
+                      message: "Full Name must be at least 4 characters are required"
+                    },
+                    maxLength:{
+                      value:50,
+                      message:"Full name must be less than 50 characters",
+                    },
+                    pattern: {
+                      value: /^[a-zA-Z\s]+$/,
+                      message: "Full name must contain only letters and spaces",
+                    },
+                   }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Full Name</FormLabel>
@@ -234,7 +247,16 @@ const UserTable = () => {
                 <FormField
                   control={form.control}
                   name="email"
-                  rules={{ required: "Email is required" }}
+                  rules={{ required: "Email is required",
+                    pattern: {
+                      value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                      message: "Enter a valid email address",
+                    },
+                    maxLength: {
+                      value: 150,
+                      message: "Email must not exceed 150 characters",
+                    },
+                   }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Email</FormLabel>
@@ -254,7 +276,17 @@ const UserTable = () => {
                 <FormField
                   control={form.control}
                   name="phone"
-                  rules={{ required: "Phone number is required" }}
+                  rules={{ required: "Phone number is required",
+                    pattern: {
+                      value: /^[0-9]+$/,
+                      message: "Phone number must contain only digits",
+                    },
+                    minLength: {
+                      value: 10,
+                      message: "Phone number must be exact 10 digits",
+                    },
+    
+                   }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Phone</FormLabel>
@@ -274,6 +306,7 @@ const UserTable = () => {
                 <Controller
                   control={form.control}
                   name="gender"
+                  rules={{ required: "Gender is required" }}
                   render={({ field, fieldState }) => (
                     <NiceSelect
                       {...field}
@@ -289,7 +322,21 @@ const UserTable = () => {
                 <FormField
                   control={form.control}
                   name="username"
-                  rules={{ required: "Username is required" }}
+                  rules={{ required: "Username is required",
+                    minLength: {
+                      value: 4,
+                      message: "Username must be at least 4 characters",
+                    },
+                    maxLength: {
+                      value: 30,
+                      message: "Username must not exceed 30 characters",
+                    },
+                    pattern: {
+                      value: /^[a-zA-Z0-9_]+$/,
+                      message:
+                        "Username can only contain letters, numbers, and underscores (no spaces)",
+                    },
+                   }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Username</FormLabel>
@@ -309,7 +356,23 @@ const UserTable = () => {
                   <FormField
                     control={form.control}
                     name="password"
-                    rules={{ required: "Password is required" }}
+                    rules={{ required: "Password is required",
+                      minLength: {
+                        value: 8,
+                        message: "Password must be at least 8 characters",
+                      },
+                      validate: {
+                        hasUppercase: (v) =>
+                          /[A-Z]/.test(v) ||
+                          "Password must contain at least one uppercase letter",
+                        hasNumber: (v) =>
+                          /[0-9]/.test(v) ||
+                          "Password must contain at least one number",
+                        hasSpecialChar: (v) =>
+                          /[!@#$%^&*(),.?":{}|<>]/.test(v) ||
+                          "Password must contain at least one special character",
+                      },
+                     }}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Password</FormLabel>
@@ -330,6 +393,7 @@ const UserTable = () => {
                 <Controller
                   control={form.control}
                   name="role_id"
+                  rules={{ required: "Role is required" }}
                   render={({ field, fieldState }) => (
                     <NiceSelect
                       {...field}
@@ -347,6 +411,11 @@ const UserTable = () => {
                 <Controller
                   control={form.control}
                   name="clinic_ids"
+                  rules={{
+                    validate: (v) =>
+                      (Array.isArray(v) && v.length > 0) ||
+                      "At least one clinic must be selected",
+                  }}
                   render={({ field, fieldState }) => (
                     <NiceSelect
                       {...field}
@@ -368,6 +437,7 @@ const UserTable = () => {
                 <Controller
                   control={form.control}
                   name="isActive"
+                  rules={{ required: "Status is required" }}
                   render={({ field }) => (
                     <NiceSelect
                       {...field}

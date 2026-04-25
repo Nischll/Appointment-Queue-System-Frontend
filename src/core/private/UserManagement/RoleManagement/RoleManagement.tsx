@@ -150,7 +150,17 @@ const RoleManagement = () => {
                 <FormField
                   control={form.control}
                   name="role_name"
-                  rules={{ required: "Role name is required" }}
+                  rules={{
+                    required: "Role name is required",
+                    maxLength: {
+                      value: 15,
+                      message: "Role name must not exceed 15 characters",
+                    },
+                    pattern: {
+                      value: /^[a-zA-Z\s]+$/,
+                      message: "Role name must contain only letters and spaces",
+                    },
+                  }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Role Name</FormLabel>
@@ -165,7 +175,18 @@ const RoleManagement = () => {
                 <FormField
                   control={form.control}
                   name="code"
-                  rules={{ required: "Code is required" }}
+                  rules={{
+                    required: "Code is required",
+                    maxLength: {
+                      value: 20,
+                      message: "Code must not exceed 20 characters",
+                    },
+                    pattern: {
+                      value: /^[a-zA-Z0-9_]+$/,
+                      message:
+                        "Code must contain only letters, numbers, and underscores",
+                    },
+                  }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Code</FormLabel>
@@ -180,6 +201,12 @@ const RoleManagement = () => {
                 <FormField
                   control={form.control}
                   name="description"
+                  rules={{
+                    maxLength: {
+                      value: 200,
+                      message: "Description must not exceed 200 characters",
+                    },
+                  }}
                   render={({ field }) => (
                     <FormItem className="col-span-2">
                       <FormLabel>Description</FormLabel>
