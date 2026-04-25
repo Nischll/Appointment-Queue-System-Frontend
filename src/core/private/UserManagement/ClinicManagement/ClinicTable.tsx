@@ -56,7 +56,7 @@ const clinicSchema = z.object({
   name: z
     .string()
     .min(1, "Clinic name is required")
-    .max(100, "Name must be under 100 characters"),
+    .max(40, "Name must be under 40 characters"),
   contact: z
     .string()
     .min(1, "Contact is required")
@@ -95,6 +95,7 @@ const ClinicTable = () => {
   const deleteClinic = useDeleteClinic(selectedClinic?.id);
 
   const form = useForm<ClinicFormValues>({
+    mode: "all",
     resolver: zodResolver(clinicSchema),
     defaultValues: emptyDefaults,
   });

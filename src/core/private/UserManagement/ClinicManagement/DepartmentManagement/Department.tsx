@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Button } from "@/components/ui/button.tsx";
 import {
@@ -16,6 +18,7 @@ import {
     FormField,
     FormItem,
     FormLabel,
+    FormMessage,
 } from "@/components/ui/form.tsx";
 import { Input } from "@/components/ui/input.tsx";
 
@@ -50,6 +53,19 @@ type DepartmentProps = {
     onSelectDepartment: (id: number | null) => void;
 };
 
+/* ================= SCHEMA ================= */
+
+const departmentSchema = z.object({
+    name: z
+        .string()
+        .min(1, "Department name is required")
+        .max(25, "Name must be under 25 characters"),
+});
+
+type DepartmentFormValues = z.infer<typeof departmentSchema>;
+
+const emptyDefaults: DepartmentFormValues = { name: "" };
+
 /* ================= COMPONENT ================= */
 
 const Department = ({ clinicId, onSelectDepartment }: DepartmentProps) => {
@@ -66,11 +82,10 @@ const Department = ({ clinicId, onSelectDepartment }: DepartmentProps) => {
     const updateDepartment = useUpdateDepartment(selected?.id);
     const deleteDepartment = useDeleteDepartment(departmentToDelete?.id);
 
-    const form = useForm<Department>({
-        defaultValues: {
-            clinic_id: clinicId,
-            name: "",
-        },
+    const form = useForm<DepartmentFormValues>({
+        mode:"all",
+        resolver: zodResolver(departmentSchema),
+        defaultValues: emptyDefaults,
     });
 
     /* ================= EFFECTS ================= */
@@ -89,15 +104,22 @@ const Department = ({ clinicId, onSelectDepartment }: DepartmentProps) => {
     }, [departments, clinicId]);
 
     useEffect(() => {
-        form.reset({
-            clinic_id: clinicId,
-            name: selected?.name || "",
-        });
-    }, [clinicId, selected, form]);
+        if (selected) {
+            form.reset({ name: selected.name ?? "" });
+        }
+    }, [selected, form]);
 
     useEffect(() => {
         setActiveDepartmentId(null);
     }, [clinicId]);
+
+    /* ================= HELPERS ================= */
+
+    const closeAndReset = () => {
+        setOpen(false);
+        setSelected(null);
+        form.reset(emptyDefaults);
+    };
 
     /* ================= HANDLERS ================= */
 
@@ -107,20 +129,17 @@ const Department = ({ clinicId, onSelectDepartment }: DepartmentProps) => {
         onSelectDepartment(dept.id);
     };
 
-    const onSubmit = (values: Department) => {
+    const onSubmit = (values: DepartmentFormValues) => {
         const payload = {
             clinic_id: clinicId,
             name: values.name,
         };
 
-        const action = selected
-            ? updateDepartment.mutate
-            : addDepartment.mutate;
+        const action = selected ? updateDepartment.mutate : addDepartment.mutate;
 
         action(payload, {
             onSuccess: () => {
-                setOpen(false);
-                setSelected(null);
+                closeAndReset();
                 refetch();
             },
         });
@@ -252,8 +271,6 @@ const Department = ({ clinicId, onSelectDepartment }: DepartmentProps) => {
                                         {dept.name}
                                     </h3>
                                 </div>
-
-
                             </CardContent>
                         </Card>
                     ))}
@@ -262,6 +279,7 @@ const Department = ({ clinicId, onSelectDepartment }: DepartmentProps) => {
                     <Card
                         onClick={() => {
                             setSelected(null);
+                            form.reset(emptyDefaults);
                             setOpen(true);
                         }}
                         className={cn(
@@ -296,6 +314,7 @@ const Department = ({ clinicId, onSelectDepartment }: DepartmentProps) => {
                             size="sm"
                             onClick={() => {
                                 setSelected(null);
+                                form.reset(emptyDefaults);
                                 setOpen(true);
                             }}
                             className="gap-2"
@@ -309,7 +328,7 @@ const Department = ({ clinicId, onSelectDepartment }: DepartmentProps) => {
 
             {/* ================= DIALOG ================= */}
 
-            <Dialog open={open} onOpenChange={setOpen}>
+            <Dialog open={open} onOpenChange={(open) => !open && closeAndReset()}>
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
                         <DialogTitle>
@@ -331,6 +350,7 @@ const Department = ({ clinicId, onSelectDepartment }: DepartmentProps) => {
                                         <FormControl>
                                             <Input {...field} placeholder="e.g. Cardiology" />
                                         </FormControl>
+                                        <FormMessage />
                                     </FormItem>
                                 )}
                             />
@@ -339,7 +359,7 @@ const Department = ({ clinicId, onSelectDepartment }: DepartmentProps) => {
                                 <Button
                                     type="button"
                                     variant="outline"
-                                    onClick={() => setOpen(false)}
+                                    onClick={closeAndReset}
                                     disabled={addDepartment.isPending || updateDepartment.isPending}
                                 >
                                     Cancel
@@ -363,12 +383,12 @@ const Department = ({ clinicId, onSelectDepartment }: DepartmentProps) => {
                                                     r="10"
                                                     stroke="currentColor"
                                                     strokeWidth="4"
-                                                ></circle>
+                                                />
                                                 <path
                                                     className="opacity-75"
                                                     fill="currentColor"
                                                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                                ></path>
+                                                />
                                             </svg>
                                             {selected ? "Updating..." : "Adding..."}
                                         </span>
