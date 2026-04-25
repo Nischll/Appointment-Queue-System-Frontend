@@ -123,7 +123,7 @@ const MainLayout = () => {
                 <Package className="h-5 w-5 text-primary-foreground" />
               </div>
               {!sidebarCollapsed && (
-                <h1 className="text-xl font-bold text-foreground truncate">AQMS</h1>
+                <h1 className="text-xl font-bold text-foreground truncate">QMS</h1>
               )}
             </div>
             <Button
@@ -192,14 +192,14 @@ const MainLayout = () => {
             {!sidebarCollapsed && (
               <div className="p-4">
                 <div className="text-center text-sm text-muted-foreground">
-                  <p>© 2025 AQMS</p>
+                  <p>© 2025 QMS</p>
                   <p>Nepal</p>
                 </div>
               </div>
             )}
             {sidebarCollapsed && (
               <div className="py-2 px-1 text-center">
-                <p className="text-[10px] text-muted-foreground">© AQMS</p>
+                <p className="text-[10px] text-muted-foreground">© QMS</p>
               </div>
             )}
           </div>
