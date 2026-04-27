@@ -302,7 +302,7 @@
   }
 
   .animate-toast-progress {
-    animation: toast-progress 3s linear forwards;
+    animation: toast-progress 5s linear forwards;
   }
 
   .animate-accordion-down {
